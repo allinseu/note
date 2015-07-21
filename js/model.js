@@ -42,10 +42,10 @@
     	// TODO
     }
 
-    window.NotebookModel = NotebookModel;
+    
 
 
-    CatalogueModel = {};
+    EssayModel = {};
 
     /* Loads all catalogues of the notebook from the server.
      *
@@ -87,5 +87,6 @@
     EssayModel.remove = function(id, callback){
     	// TODO
     }
-    window.CatalogueModel = CatalogueModel;
+    window.NotebookModel = NotebookModel;
+    window.EssayModel = EssayModel;
 })(this,this.document)

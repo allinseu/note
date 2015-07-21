@@ -37,6 +37,7 @@
 
 	/* Renders a view to allow the user to edit an entry. Requires the $entry
      * element and an object representing the active entry. */
+    var EditingEssayView ={};
     EditingEssayView.render = function($entry, activeEssayData) {
       // TODO
     };

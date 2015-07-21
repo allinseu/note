@@ -81,7 +81,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="content">
+                <div class="content" style="display: none">
                     <div class="menubar_tool content_close g_pointer"> <i class="fa fa-times "></i></div>
                     <div class="content_header">
                         <h2>闲慢的碎步</h2>
@@ -99,12 +99,22 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="editor">
+                    <input type="text" name="note_title" placeholder="输入笔记标题">
+                    <div class="editor-container" >
+                        <div class="editor-area" contenteditable="true">
+                            
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Libraries -->
         <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/handlebars.js"></script>
-
+        <!-- Util -->
+        <script type="text/javascript" src="js/util.js"></script>
         <!-- Models -->
         <script type="text/javascript" src="js/model.js"></script>
 
