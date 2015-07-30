@@ -19,15 +19,16 @@
             <div class="menubar">
                 <div class="menubar_header">笔记本</div>
                 <div class="menubar_tool">
-                    <i class="fa fa-trash-o"></i>
-                    <i class="fa fa-plus g_pointer"></i>
+                    <i class="fa fa-plus g_pointer addNotebook"></i>
+                    <i class="fa fa-trash-o deleteNotebook"></i>
                 </div>
                 <div>
                     <ul id="notebook">
-                        <li class="notebook"><a href="">设计(234)</a></li>
-                        <li class="notebook"><a href="">体育锻炼(3)</a></li>
-                        <li class="notebook"><a href="">HTML5(29)</a></li>
+                        {{#each notebook}}
+                        <li class="notebook"><a href="/notebook/#{{id}}">{{title}}({{count}})</a></li>
+                        {{/each}}
                     </ul>
+                    <input type="text" class="inputAddNotebook"/>
                 </div>
             </div>
             <div class="container">

@@ -6,6 +6,12 @@
 	 */
 	NotebookView.render = function($notebook, notebookData){
 		// TODO
+		if(notebookData){
+
+		}else{
+			var notebookTemplate = Handlebars.compile($notebook.html());
+			$notebook.html(notebookTemplate([]));
+		}
 	};
 
 

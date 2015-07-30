@@ -1,4 +1,41 @@
 (function(window,document){
 	console.log($('.editor').outerHeight());
-	
+	var util = {};
+	util.uuid = function() {
+		var s = [];
+		var hexDigits = "0123456789abcdef";
+		for (var i = 0; i < 36; i++) {
+			s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+		}
+		s[14] = Math.random()*10 >> 0; // bits 12-15 of the time_hi_and_version field to 0010
+		s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
+		[s[8],s[13],s[18],s[23]].forEach(function(item){
+			item = Math.random()*10 >> 0;
+		});
+
+		var uuid = s.join("");
+		return uuid;
+	}
+	util.checkNotebook = function(){
+		console.log($('#notebook').children('li'));
+		if($('#notebook').children('li').length === 0){
+			$('.deleteNotebook').hide();
+		}else{
+			$('.deleteNotebook').show();
+		}
+	}
+
+	util.hasId = function(objs, id){
+		return objs.some(function(item){
+				return item.id == id;
+			})
+	}
+	util.assignId = function(objs,obj){
+		var id = this.uuid();
+		while(this.hasId(objs,id)){
+			id = this.uuid();
+		}
+		obj.id = id;
+	}
+	window.util = util;
 })(this,this.document)

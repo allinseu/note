@@ -70,7 +70,17 @@ a{text-decoration: none;color: inherit;}
 	background-color: #303030;
 	color: #fcfcfc;
 }
-
+.inputAddNotebook{
+	border: none;
+	border-bottom: 1px dashed #b2b2b2;
+	background: #181818;
+	outline: none;
+	color: white;
+	width: 80%;
+	position: relative;
+	left: 10%;
+	display: none;
+}
 /**--- mainpage **/
 .container{
 	position: absolute;

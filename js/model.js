@@ -1,7 +1,8 @@
 (function(window,document){
 	var NotebookModel = {};
 
-	/* Loads all noteboolks from the server.
+
+	/* Loads all noteboolks from the localstorage.
      *
      *  Calls: callback(error, entries)
      *  error -- the error that occurred or NULL if no error occurred
@@ -9,6 +10,8 @@
      */
 	NotebookModel.loadAll = function(callback){
 		// TODO
+        var notebooks = localStorage.getItem("notebooks");
+        callback(false,notebooks);
 	}
 
 	/* Adds the given notebook to the list of notebooks. The notebook must *not* have
@@ -20,6 +23,11 @@
      */
 	NotebookModel.add = function(notebook, callback){
 		// TODO
+        var notebooks = localStorage.getItem("notebooks") || [];
+        if(notebook.id){
+            notebooks.push(notebook);
+        }
+        localStorage.setItem("notebooks", notebooks);
 	}
 
 	/* Updates the given entry. The entry must have an id attribute that
@@ -45,7 +53,7 @@
     
 
 
-    EssayModel = {};
+    var EssayModel = {};
 
     /* Loads all catalogues of the notebook from the server.
      *
@@ -89,4 +97,6 @@
     }
     window.NotebookModel = NotebookModel;
     window.EssayModel = EssayModel;
+
+
 })(this,this.document)
