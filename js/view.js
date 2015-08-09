@@ -6,10 +6,14 @@
 	 */
 	NotebookView.render = function($notebook, notebookData){
 		// TODO
+		console.log(notebookData);
+		var content = {
+			notebooks: notebookData
+		}
+		var notebookTemplate = Handlebars.compile($notebook.html());
 		if(notebookData){
-
+			$notebook.html(notebookTemplate(content));
 		}else{
-			var notebookTemplate = Handlebars.compile($notebook.html());
 			$notebook.html(notebookTemplate([]));
 		}
 	};

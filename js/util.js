@@ -17,8 +17,7 @@
 		return uuid;
 	}
 	util.checkNotebook = function(){
-		console.log($('#notebook').children('li'));
-		if($('#notebook').children('li').length === 0){
+		if($('#notebooks').children('li').length === 0){
 			$('.deleteNotebook').hide();
 		}else{
 			$('.deleteNotebook').show();

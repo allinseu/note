@@ -1,4 +1,15 @@
 (function(window,document){
+
+    /* Learn cloud Models
+     *  从learncloud加载内容，并且支持对learn cloud上的内容进行编辑
+     *  Notebook: 是笔记本对象，有两个属性 title和numberOfNote
+     *
+     */
+    var Notebook = AV.Object.extend("Notebook");
+    window.Notebook = Notebook;
+    //var notebookObj = new Notebook();
+
+
 	var NotebookModel = {};
 
 
@@ -10,8 +21,33 @@
      */
 	NotebookModel.loadAll = function(callback){
 		// TODO
-        var notebooks = localStorage.getItem("notebooks");
-        callback(false,notebooks);
+        var NotebookCollection = AV.Collection.extend({
+            model: Notebook
+        });
+        var notebookCollection = new NotebookCollection();
+
+        var notebooks = [];
+        notebookCollection.fetch({
+            success: function(collection){
+                console.log(collection.models);
+                collection.models.forEach(function(item){
+                    var notebook  = {};
+                    notebook.id = item.id;
+                    notebook.title = item.attributes.title;
+                    notebook.numberOfNote = parseInt(item.attributes.numberOfNote);
+                    notebooks.push(notebook);
+                    console.log(notebook);
+                });
+                console.log(notebooks);
+                callback(false,notebooks);
+            },
+            error: function(collection,error){
+                console.log(error);
+                callback(error,null);
+            }
+        });
+
+
 	}
 
 	/* Adds the given notebook to the list of notebooks. The notebook must *not* have

@@ -66,9 +66,11 @@ a{text-decoration: none;color: inherit;}
 }
 
 .menubar li:hover,
-.menubar li:focus{
+.menubar li:focus,
+.notebook.selected{
 	background-color: #303030;
 	color: #fcfcfc;
+
 }
 .inputAddNotebook{
 	border: none;
@@ -80,6 +82,14 @@ a{text-decoration: none;color: inherit;}
 	position: relative;
 	left: 10%;
 	display: none;
+}
+
+.notebook a{
+	display: inline-block;
+	width: 100%;
+	outline: none;
+	border: none;
+
 }
 /**--- mainpage **/
 .container{
