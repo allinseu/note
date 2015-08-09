@@ -19,15 +19,16 @@
             <div class="menubar">
                 <div class="menubar_header">笔记本</div>
                 <div class="menubar_tool">
-                    <i class="fa fa-trash-o"></i>
-                    <i class="fa fa-plus g_pointer"></i>
+                    <i class="fa fa-plus g_pointer addNotebook"></i>
+                    <i class="fa fa-trash-o deleteNotebook"></i>
                 </div>
                 <div>
-                    <ul>
-                        <li class="notebook"><a href="">设计(234)</a></li>
-                        <li class="notebook"><a href="">体育锻炼(3)</a></li>
-                        <li class="notebook"><a href="">HTML5(29)</a></li>
+                    <ul id="notebooks">
+                        {{#each notebooks}}
+                        <li class="notebook"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>
+                        {{/each}}
                     </ul>
+                    <input type="text" class="inputAddNotebook"/>
                 </div>
             </div>
             <div class="container">
@@ -81,7 +82,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="content">
+                <div class="content" style="display: none">
                     <div class="menubar_tool content_close g_pointer"> <i class="fa fa-times "></i></div>
                     <div class="content_header">
                         <h2>闲慢的碎步</h2>
@@ -99,12 +100,23 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="editor">
+                    <input type="text" name="note_title" placeholder="输入笔记标题">
+                    <div class="editor-container" >
+                        <div class="editor-area" contenteditable="true">
+                            
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Libraries -->
         <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/handlebars.js"></script>
-
+        <script src="https://cdn1.lncld.net/static/js/av-mini-0.5.7.js"></script>
+        <!-- Util -->
+        <script type="text/javascript" src="js/util.js"></script>
         <!-- Models -->
         <script type="text/javascript" src="js/model.js"></script>
 
