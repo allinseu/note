@@ -26,6 +26,14 @@
 		// NotebookModel.loadAll(callback)
 		NotebookModel.loadAll(getNotebooks);
 
+		// 为增加笔记本的输入框添加时间
+		$('.inputAddNotebook').blur(inputAddNotebookBlur);
+		$('.inputAddNotebook').keyup(function(event){
+			if(event.keyCode == 13){
+				inputAddNotebookBlur(event);
+			}
+		})
+
 		// 得到所有的notebook 通过view.js渲染
 		function getNotebooks(error, notebooks){
 			$notebooks = $('#notebooks');
@@ -33,21 +41,34 @@
 				console.log('error');
 			}else{
 				if(notebooks && notebooks.length >0){
+					global.notebooks = notebooks;
 					console.log(notebooks);
 				}else{
-					console.log('no notebook');
 					notebooks = [];
 				}
 				NotebookView.render($('#notebooks'),notebooks);
 			}
-			util.checkNotebook();
-			$('.notebook').find('a').click(clickNotebook);
+			util.checkNotebook(clickNotebook);
+
 		}
 
+		// 增加笔记本回调事件，渲染新节点
+		function addNotebook(error, notebook){
+			if(error){
+				console.debug(error);
+			}else{
+				console.log('add回调:', notebook);
+				if(notebook.id){
+					global.notebooks.push(notebook);
+					NotebookView.render($('#notebooks'), notebook);
+					util.checkNotebook(clickNotebook);
+				}
+			}
+		}
 
-		// notebook点击事件处理
+		// 添加笔记本的input失去焦点，如果里面没有内容则隐藏输入框，如果有内容，则保存
 
-		$('.inputAddNotebook').blur(inputAddNotebookBlur);
+
 		function clickNotebook(event){
 			event.preventDefault();
 			$target = $(event.target);
@@ -58,7 +79,7 @@
 
 		}
 
-		// 添加目录对话框失去焦点；如果没有输入则隐藏输入框，有输入则保存
+		// 添加目录对话框失去焦点事件；如果没有输入则隐藏输入框，有输入则保存
 		function inputAddNotebookBlur(event){
 			var $target = $(event.target);
 			if(!$target.val()){
@@ -66,6 +87,14 @@
 			}else{
 				// TODO
 				console.log($target.val())
+				var newNotebook = {
+					title: $target.val(),
+					numberOfNote: '0'
+				};
+				console.log(newNotebook);
+				NotebookModel.add(newNotebook,addNotebook);
+				$target.val('');
+				$target.hide();
 			}
 		}
 	})
@@ -78,18 +107,4 @@
 	$('.addNotebook').click(function(event){
 		$('.inputAddNotebook').show().focus();
 	})
-	$('.inputAddNotebook').keyup(function(event){
-		if(event.keyCode == 13){
-			saveNotebook();
-			$('.inputAddNotebook').hide();
-		}
-	})
-	function saveNotebook(){
-		console.log('save');
-		var notebook = {};
-		notebook.title = $('.inputAddNotebook').val();
-		notebook.count = 0;
-		util.assignId(global.notebooks,notebook);
-		console.log(notebook);
-	}
 })(this,this.document);

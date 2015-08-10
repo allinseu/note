@@ -27,18 +27,18 @@
         var notebookCollection = new NotebookCollection();
 
         var notebooks = [];
+        notebookCollection.comparator = function(object){
+            return object.createdAt.getTime();
+        }
         notebookCollection.fetch({
             success: function(collection){
-                console.log(collection.models);
                 collection.models.forEach(function(item){
                     var notebook  = {};
-                    notebook.id = item.id;
-                    notebook.title = item.attributes.title;
-                    notebook.numberOfNote = parseInt(item.attributes.numberOfNote);
+                    util.cloneNotebook(item, notebook);
                     notebooks.push(notebook);
+                    console.log(item.createdAt);
                     console.log(notebook);
                 });
-                console.log(notebooks);
                 callback(false,notebooks);
             },
             error: function(collection,error){
@@ -59,11 +59,21 @@
      */
 	NotebookModel.add = function(notebook, callback){
 		// TODO
-        var notebooks = localStorage.getItem("notebooks") || [];
-        if(notebook.id){
-            notebooks.push(notebook);
-        }
-        localStorage.setItem("notebooks", notebooks);
+        var notebookObj = new Notebook();
+        notebookObj.save(notebook,
+            {
+                success: function(notebook){
+                    var retNotebook = {};
+                    util.cloneNotebook(notebook,retNotebook);
+                    callback(null,retNotebook);
+                },
+                error: function(notebook,error){
+                    var retNotebook = {};
+                    console.log(error);
+                    callback(error,notebook);
+                }
+            });
+
 	}
 
 	/* Updates the given entry. The entry must have an id attribute that

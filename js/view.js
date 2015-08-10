@@ -6,15 +6,28 @@
 	 */
 	NotebookView.render = function($notebook, notebookData){
 		// TODO
-		console.log(notebookData);
-		var content = {
-			notebooks: notebookData
-		}
-		var notebookTemplate = Handlebars.compile($notebook.html());
-		if(notebookData){
-			$notebook.html(notebookTemplate(content));
+
+		if($.isArray(notebookData)){
+			// 如果是数组，则渲染所有元素
+			console.log('rend Notebook: ', notebookData)
+			var content = {
+				notebooks: notebookData
+			};
+			var notebookTemplate = Handlebars.compile($notebook.html());
+			if(notebookData){
+				$notebook.html(notebookTemplate(content));
+			}else{
+				$notebook.html(notebookTemplate([]));
+			}
 		}else{
-			$notebook.html(notebookTemplate([]));
+			// 不是数组，则在结尾添加一个节点
+			var newLi = '<li class="notebook"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>';
+			notebookTemplate = Handlebars.compile(newLi);
+			if(notebookData.id){
+				newLi = notebookTemplate(notebookData);
+				$notebook.append(newLi);
+			}
+
 		}
 	};
 
