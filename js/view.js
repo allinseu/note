@@ -21,7 +21,7 @@
 			}
 		}else{
 			// 不是数组，则在结尾添加一个节点
-			var newLi = '<li class="notebook"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>';
+			var newLi = '<li class="notebook" data-id="{{id}}"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>';
 			notebookTemplate = Handlebars.compile(newLi);
 			if(notebookData.id){
 				newLi = notebookTemplate(notebookData);

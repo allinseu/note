@@ -25,7 +25,7 @@
                 <div>
                     <ul id="notebooks">
                         {{#each notebooks}}
-                        <li class="notebook"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>
+                        <li class="notebook" data-id="{{id}}"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>
                         {{/each}}
                     </ul>
                     <input type="text" class="inputAddNotebook"/>
@@ -82,7 +82,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="content" style="display: none">
+
+                <div class="content" >
                     <div class="menubar_tool content_close g_pointer"> <i class="fa fa-times "></i></div>
                     <div class="content_header">
                         <h2>闲慢的碎步</h2>
@@ -101,7 +102,7 @@
                     </div>
                 </div>
 
-                <div class="editor">
+                <div class="editor" style="display: none">
                     <input type="text" name="note_title" placeholder="输入笔记标题">
                     <div class="editor-container" >
                         <div class="editor-area" contenteditable="true">

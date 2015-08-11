@@ -1,6 +1,6 @@
 (function(window,document){
 	// learn cloud初始化
-	AV.initialize("x4wg7adtwqe58wyp20wfkiwflctzbgypi75kxwa14t7ivn7h", "mz8fu3avegzfzf8s6axqii5ujm8bef999b99ko9t5irg4mhy");
+	AV.initialize("x4wg7adtwqe58wyp20wfkiwflctzbgypi75kxwa14t7ivn7h", "b4t6fm6ej6zjwq1iemw7z3zypd2slava19va3xdxvci9wt21");
 
 
 
@@ -26,13 +26,19 @@
 		// NotebookModel.loadAll(callback)
 		NotebookModel.loadAll(getNotebooks);
 
-		// 为增加笔记本的输入框添加时间
+		// 添加笔记本的input失去焦点，如果里面没有内容则隐藏输入框，如果有内容，则保存
 		$('.inputAddNotebook').blur(inputAddNotebookBlur);
+
+		// 输入框改变事件
 		$('.inputAddNotebook').keyup(function(event){
 			if(event.keyCode == 13){
 				inputAddNotebookBlur(event);
 			}
 		})
+
+		// 点击删除按钮
+		$('.deleteNotebook').click(deleteNotebook);
+
 
 		// 得到所有的notebook 通过view.js渲染
 		function getNotebooks(error, notebooks){
@@ -66,15 +72,29 @@
 			}
 		}
 
-		// 添加笔记本的input失去焦点，如果里面没有内容则隐藏输入框，如果有内容，则保存
-
-
+		// 单击notebook,选中当前notebook  该事件在util.checkNotebook中绑定
 		function clickNotebook(event){
 			event.preventDefault();
 			$target = $(event.target);
 			if(!$target.hasClass('selected')){
 				$target.parents('#notebooks').find('.notebook').removeClass('selected');
 				$target.parents('.notebook').addClass('selected');
+				var stringArray = $target.text().split('(');
+				if(stringArray[stringArray.length-1] === "0)"){
+					return "no essay";
+				}
+				var title = stringArray.slice(0,stringArray.length-1).join('');
+				EssayModel.loadAll(title,loadEssays);
+			}
+			function loadEssays(error,essays){
+				if(error) return console.log(error);
+				global.catalogue = [];
+				essays.forEach(function(item){
+					global.catalogue.push(item);
+				});
+				console.log('success get');
+				console.log(global.catalogue);
+
 			}
 
 		}
@@ -87,9 +107,16 @@
 			}else{
 				// TODO
 				console.log($target.val())
+				if(global.notebooks.some(function(item){
+						return item.title === $target.val();
+					})){
+					alert('不能有一样名字的笔记本哦~');
+					return false;
+				}
 				var newNotebook = {
 					title: $target.val(),
-					numberOfNote: '0'
+					numberOfNote: 0,
+					alive: true
 				};
 				console.log(newNotebook);
 				NotebookModel.add(newNotebook,addNotebook);
@@ -97,6 +124,28 @@
 				$target.hide();
 			}
 		}
+
+		// 删除目录
+		function deleteNotebook(event){
+			console.log('deletenotebook click');
+			$notebooksDeleted = $('#notebooks').find('.selected');
+			console.log($notebooksDeleted);
+			if($notebooksDeleted.length > 0){
+				$notebooksDeleted.each(function(index,item){
+
+					NotebookModel.remove($(item).data('id'),finishDeleteNotebook);
+				})
+			}
+			function finishDeleteNotebook(error, notebook){
+				if(error) return console.log(error);
+				$('.notebook.selected').remove();
+			}
+
+		}
+
+
+
+
 	})
 	$('.editor-area').on('paste',function(){
 		var $this=$(this);
@@ -106,5 +155,8 @@
 	})
 	$('.addNotebook').click(function(event){
 		$('.inputAddNotebook').show().focus();
+	})
+	$('a').click(function(event){
+		event.preventDefault();
 	})
 })(this,this.document);
