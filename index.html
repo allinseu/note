@@ -23,10 +23,9 @@
                     <i class="fa fa-trash-o deleteNotebook"></i>
                 </div>
                 <div>
+
                     <ul id="notebooks">
-                        {{#each notebooks}}
-                        <li class="notebook" data-id="{{id}}"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>
-                        {{/each}}
+
                     </ul>
                     <input type="text" class="inputAddNotebook"/>
                 </div>
@@ -38,47 +37,8 @@
                         <span class="button g_pointer"><i class="fa fa-pencil-square-o"></i>新建笔记</span>
                     </div>
                     <div class="sidebar_content">
-                        <ul>
-                            <li>
-                                <a href="">
-                                    <div class="cite">
-                                        <h5>那么，星座到底准不准呢？</h5>
-                                        <p>号称“神学界之王”的中世纪最伟大的经院哲学家托马斯阿奎纳曾经用五种方式论证过上帝的存在，在《神学大全》中，这五种论证而得出的“上帝存在”结论成为了托马斯神学哲学体系的基石…</p>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <div class="cite " >
-                                        <h5>飞翔吧，挥着翅膀的女孩</h5>
-                                        <p>秋天，蓝蓝的天，白云压着枝头，满枝头黑红玛瑙般的山楂。她俩两步一爬地窜到树上摘山楂。刚拿一颗放嘴里，酸得青梅只流泪，着什么破山楂，怎么比青梅还酸呢，火花站在树枝上捂着肚子狂笑…</p>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <div class="cite selected">
-                                        <h5>闲慢的碎步</h5>
-                                        <p>风雅是什么，长在俗气的工商县城的我不曾知道。后来读到谷崎润一郎说，日本的厕所还是比西式的好，建在院子里的僻静角落，用木头搭成整齐的一间，在这样阴翳私密的所在，可以一边释放自己，一边吹风听雨，唯一坏处是秋冬易感风寒…</p>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <div class="cite">
-                                        <h5>闲慢的碎步</h5>
-                                        <p>风雅是什么，长在俗气的工商县城的我不曾知道。后来读到谷崎润一郎说，日本的厕所还是比西式的好，建在院子里的僻静角落，用木头搭成整齐的一间，在这样阴翳私密的所在，可以一边释放自己，一边吹风听雨，唯一坏处是秋冬易感风寒…</p>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <div class="cite">
-                                        <h5>闲慢的碎步</h5>
-                                        <p>风雅是什么，长在俗气的工商县城的我不曾知道。后来读到谷崎润一郎说，日本的厕所还是比西式的好，建在院子里的僻静角落，用木头搭成整齐的一间，在这样阴翳私密的所在，可以一边释放自己，一边吹风听雨，唯一坏处是秋冬易感风寒…</p>
-                                    </div>
-                                </a>
-                            </li>
+                        <ul id="catalogues">
+
                         </ul>
                     </div>
                 </div>
@@ -127,4 +87,36 @@
         <!-- Main -->
         <script type="text/javascript" src="js/main.js"></script>
     </body>
+
+    <script id="notebookNode-template" type="text/x-handlebars-template">
+        <li class="notebook" data-id="{{id}}"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>
+    </script>
+    <script id="notebook-template" type="text/x-handlebars-template">
+        {{#each notebooks}}
+        <li class="notebook" data-id="{{id}}"><a href="/notebook/#{{id}}">{{title}}({{numberOfNote}})</a></li>
+        {{/each}}
+    </script>
+
+    <script id="emptyCatalogue-template" type="text/x-handlebars-template">
+        <li class="catalogue selected" data-id="">
+            <a href="#">
+                <div class="cite">
+                    <h5>这儿还没有笔记呢</h5>
+                    <p>快写一篇吧，快些一篇吧~~快呀~快呀~</p>
+                </div>
+            </a>
+        </li>
+    </script>
+    <script id="catalogue-template" type="text/x-handlebars-template">
+        {{#each catalogues}}
+        <li class="catalogue" data-id="{{id}}">
+            <a href="#">
+                <div class="cite">
+                    <h5>{{title}}</h5>
+                    <p>{{short}}…</p>
+                </div>
+            </a>
+        </li>
+        {{/each}}
+    </script>
 </html>

@@ -26,6 +26,8 @@
 		// NotebookModel.loadAll(callback)
 		NotebookModel.loadAll(getNotebooks);
 
+		CatalogueView.render($('#catalogues'),[]);
+
 		// 添加笔记本的input失去焦点，如果里面没有内容则隐藏输入框，如果有内容，则保存
 		$('.inputAddNotebook').blur(inputAddNotebookBlur);
 
@@ -81,7 +83,8 @@
 				$target.parents('.notebook').addClass('selected');
 				var stringArray = $target.text().split('(');
 				if(stringArray[stringArray.length-1] === "0)"){
-					return "no essay";
+					CatalogueView.render($('#catalogues'),[]);
+					return 'no essay';
 				}
 				var title = stringArray.slice(0,stringArray.length-1).join('');
 				EssayModel.loadAll(title,loadEssays);
@@ -92,12 +95,27 @@
 				essays.forEach(function(item){
 					global.catalogue.push(item);
 				});
+
+				CatalogueView.render($('#catalogues'),global.catalogue);
+				util.checkCatalogue(clickCatalogue);
 				console.log('success get');
 				console.log(global.catalogue);
-
 			}
-
 		}
+
+
+		// 单击catalogue,选中当前的目录   该事件在util.checkCatalogue中绑定
+		function clickCatalogue(event){
+			console.log('click catalogue');
+			event.preventDefault();
+			var $target = $(event.target);
+			console.log($target);
+			if(!$target.hasClass('selected')){
+				$target.parents('#catalogues').find('.catalogue').removeClass('selected');
+				$target.parents('.catalogue').addClass('selected');
+			}
+		}
+
 
 		// 添加目录对话框失去焦点事件；如果没有输入则隐藏输入框，有输入则保存
 		function inputAddNotebookBlur(event){
