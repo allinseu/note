@@ -1,40 +1,36 @@
 (function(window,document){
-	console.log($('.editor').outerHeight());
 	var util = {};
-	util.uuid = function() {
-		var s = [];
-		var hexDigits = "0123456789abcdef";
-		for (var i = 0; i < 36; i++) {
-			s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-		}
-		s[14] = Math.random()*10 >> 0; // bits 12-15 of the time_hi_and_version field to 0010
-		s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
-		[s[8],s[13],s[18],s[23]].forEach(function(item){
-			item = Math.random()*10 >> 0;
-		});
 
-		var uuid = s.join("");
-		return uuid;
-	}
-	util.checkNotebook = function(){
+	// 检查notebook，如果为空隐藏删除按钮，并且为所有笔记本绑定点击时间
+	util.checkNotebook = function(clickNotebook){
 		if($('#notebooks').children('li').length === 0){
 			$('.deleteNotebook').hide();
 		}else{
+			$('.notebook').find('a').unbind();
 			$('.deleteNotebook').show();
+			$('.notebook').find('a').click(clickNotebook);
 		}
 	}
 
-	util.hasId = function(objs, id){
-		return objs.some(function(item){
-				return item.id == id;
-			})
+	util.checkCatalogue = function(clickCatalogue){
+		console.log('check catalogue')
+		$(document).on('click', '.catalogue', clickCatalogue);
 	}
-	util.assignId = function(objs,obj){
-		var id = this.uuid();
-		while(this.hasId(objs,id)){
-			id = this.uuid();
-		}
-		obj.id = id;
+
+	// 将从learnCloud得到的notebook对象拷贝成我们需要的对象
+	util.cloneNotebook = function(fromObj,toObj) {
+		toObj.id = fromObj.id;
+		toObj.title = fromObj.attributes.title;
+		toObj.numberOfNote = parseInt(fromObj.attributes.numberOfNote);
+	}
+
+	util.cloneEssay    = function(fromObj,toObj) {
+		toObj.id = fromObj.id;
+		toObj.title = fromObj.attributes.title;
+		toObj.content = fromObj.attributes.content;
+		toObj.short   = fromObj.attributes.content.replace(/\n/g,"").slice(0,80);
+		toObj.date    = new Date(fromObj.createdAt);
+
 	}
 	window.util = util;
 })(this,this.document)

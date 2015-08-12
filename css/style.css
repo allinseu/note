@@ -173,11 +173,14 @@ a{text-decoration: none;color: inherit;}
 	border: 1px solid rgba(74,74,74,0.075);
 }
 
-.sidebar_content .cite.selected{
+.catalogue.selected .cite{
 	background-color: #fff;
 	border: 3px solid rgba(129,196,131,0.5);
 }
-
+.catalogue.selected a{
+	outline: none;
+	border: none;
+}
 /**--- content ---**/
 .content_header{
 	height: 170px;

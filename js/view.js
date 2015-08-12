@@ -6,15 +6,29 @@
 	 */
 	NotebookView.render = function($notebook, notebookData){
 		// TODO
-		console.log(notebookData);
-		var content = {
-			notebooks: notebookData
-		}
-		var notebookTemplate = Handlebars.compile($notebook.html());
-		if(notebookData){
-			$notebook.html(notebookTemplate(content));
+
+		var notebookTemplate = Handlebars.compile($('#notebook-template').html());
+		if($.isArray(notebookData)){
+			// 如果是数组，则渲染所有元素
+			console.log('render Notebook: ', notebookData)
+			var content = {
+				notebooks: notebookData
+			};
+
+			if(notebookData){
+				$notebook.html(notebookTemplate(content));
+			}else{
+				$notebook.html(notebookTemplate([]));
+			}
 		}else{
-			$notebook.html(notebookTemplate([]));
+			// 不是数组，则在结尾添加一个节点
+			var newLi = $('#notebookNode-template').html();
+			notebookTemplate = Handlebars.compile(newLi);
+			if(notebookData.id){
+				newLi = notebookTemplate(notebookData);
+				$notebook.append(newLi);
+			}
+
 		}
 	};
 
@@ -26,6 +40,26 @@
 	var CatalogueView = {};
 	CatalogueView.render = function($catalogue, catalogueData){
 	  // TODO
+		var catalogueTemplate;
+		if($.isArray(catalogueData)){
+			console.log("rend catalogue start...");
+
+			var content ={
+				catalogues: catalogueData
+			}
+
+			if(catalogueData.length){
+				console.log('4');
+				catalogueTemplate = Handlebars.compile($('#catalogue-template').html());
+				$catalogue.html(catalogueTemplate(content));
+			}else{
+				console.log('none');
+				catalogueTemplate = Handlebars.compile($('#emptyCatalogue-template').html())
+				$catalogue.html(catalogueTemplate());
+			}
+		}else{
+			console.log('catalogueData is not an Array');
+		}
 	};
 
 
