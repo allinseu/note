@@ -8,29 +8,93 @@
 		}else{
 			$('.notebook').find('a').unbind();
 			$('.deleteNotebook').show();
-			$('.notebook').find('a').click(clickNotebook);
+			//$('.notebook').find('a').click(clickNotebook);
+			$(document).on('click','.notebook',clickNotebook);
 		}
+
 	}
 
 	util.checkCatalogue = function(clickCatalogue){
-		console.log('check catalogue')
 		$(document).on('click', '.catalogue', clickCatalogue);
 	}
 
+	util.setTimer = function(fn,interval){
+		var recurse, ref;
+		ref = {};
+		ref.continue = true;
+		(recurse = function(){
+			if(ref.continue){
+				ref.timeout = setTimeout(function(){
+					fn();
+					recurse();
+				},interval);
+			}
+		})();
+		return ref;
+	};
+
+	util.clearTimer = function(ref){
+		ref['continue'] = false;
+		clearTimeout(ref);
+	};
+
+	util.DataBinder = function(object_id){
+		// 使用一个jQuery对象作为简单的订阅者发布者
+		var pubSub = $({});
+
+		var data_attr = "bind-"+object_id,
+			message   = object_id+":change";
+
+		$(document).on('change','[data-'+object_id+']',function(event){
+			var $input = $(this);
+			pubSub.trigger(message, [$input.data(data_attr), $input.val()]);
+		});
+
+		pubSub.on('message', function(event,prop_name,new_val){
+			$('[data-'+object_id+'='+prop_name+']').each(function () {
+				var $bound = $(this);
+
+				if($bound.is("input,textarea,select")){
+					$bound.val(new_val);
+				}else{
+					$bound.html(new_val);
+				}
+			})
+		});
+
+		return pubSub;
+	}
+
+
 	// 将从learnCloud得到的notebook对象拷贝成我们需要的对象
 	util.cloneNotebook = function(fromObj,toObj) {
+		toObj  = toObj || {};
 		toObj.id = fromObj.id;
 		toObj.title = fromObj.attributes.title;
 		toObj.numberOfNote = parseInt(fromObj.attributes.numberOfNote);
+		return toObj;
+	}
+	util.findSelectOne = function(title,array){
+		var target={};
+		array.forEach(function(item){
+			if(item.title == title){
+				target = item;
+			}
+		})
+		return target;
+		console.log("something wrong as we can't find correct notebook");
 	}
 
 	util.cloneEssay    = function(fromObj,toObj) {
+		toObj = toObj || {};
 		toObj.id = fromObj.id;
 		toObj.title = fromObj.attributes.title;
 		toObj.content = fromObj.attributes.content;
 		toObj.short   = fromObj.attributes.content.replace(/\n/g,"").slice(0,80);
 		toObj.date    = new Date(fromObj.createdAt);
-
+		return toObj;
 	}
+
+
 	window.util = util;
 })(this,this.document)

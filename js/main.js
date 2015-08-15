@@ -26,7 +26,33 @@
 		// NotebookModel.loadAll(callback)
 		NotebookModel.loadAll(getNotebooks);
 
-		CatalogueView.render($('#catalogues'),[]);
+        var waitNotebook = util.setTimer(waitToRenderCatalogue,300);
+
+		var waitCatalogue = util.setTimer(waitToRenderEssay,400);
+        function waitToRenderCatalogue(){
+            // console.log('运行中.....');
+            var time = time || 4;
+            if(time<0 || global.notebooks.length>0){
+                if($('.notebook')[0]){
+                    $($('.notebook')[0]).find('a').trigger("click");
+                }
+                util.clearTimer(waitNotebook);
+            }else{
+                time -- ;
+            }
+        }
+
+		function waitToRenderEssay(){
+			var time = time || 5;
+			if(time<0 || global.catalogue.length>0){
+				clickCatalogueAnalog();
+				util.clearTimer(waitCatalogue);
+			}else{
+				time -- ;
+			}
+		}
+
+
 
 		// 添加笔记本的input失去焦点，如果里面没有内容则隐藏输入框，如果有内容，则保存
 		$('.inputAddNotebook').blur(inputAddNotebookBlur);
@@ -38,19 +64,44 @@
 			}
 		})
 
+
 		// 点击删除按钮
 		$('.deleteNotebook').click(deleteNotebook);
 
+        $('.create-essay').click(clickCreateEssay);
+
+        $(document).on('keyup','.essay-title', function(){
+            var title = $(this).val()||'标题';
+            $('.catalogue.selected').find('h5').html(title);
+        })
+
+		$(document).on('keyup','.editor-area', function(){
+			var content = $(this).text()||'令人虎躯一震的内容';
+			if(content.length>80){
+				content = content.slice(0,80)+'...';
+			}
+			$('.catalogue.selected').find('p').html(content);
+		})
+
+		$('.add-essay').click(clickAddEssay);
+
+        function clickCreateEssay(){
+            console.log($('.catalogue'));
+            $('.catalogue').removeClass('selected');
+            showEditor();
+            CreatingCatalogue.render($('#catalogues'));
+        }
 
 		// 得到所有的notebook 通过view.js渲染
 		function getNotebooks(error, notebooks){
 			$notebooks = $('#notebooks');
 			if(error){
 				console.log('error');
+
 			}else{
 				if(notebooks && notebooks.length >0){
 					global.notebooks = notebooks;
-					console.log(notebooks);
+					// console.log(notebooks);
 				}else{
 					notebooks = [];
 				}
@@ -77,18 +128,25 @@
 		// 单击notebook,选中当前notebook  该事件在util.checkNotebook中绑定
 		function clickNotebook(event){
 			event.preventDefault();
-			$target = $(event.target);
+			$target = $(this);
 			if(!$target.hasClass('selected')){
-				$target.parents('#notebooks').find('.notebook').removeClass('selected');
-				$target.parents('.notebook').addClass('selected');
+                $('.notebook').removeClass('selected');
+                $target.addClass('selected');
+				$('.deleteNotebook').addClass('g_pointer')
 				var stringArray = $target.text().split('(');
+				var title = stringArray.slice(0,stringArray.length-1).join('');
+				console.log(global.notebooks);
+				global.selectedNotebook = util.findSelectOne(title,global.notebooks);
+				console.log('Select notebook: ' +global.selectedNotebook);
+
 				if(stringArray[stringArray.length-1] === "0)"){
 					CatalogueView.render($('#catalogues'),[]);
 					return 'no essay';
 				}
-				var title = stringArray.slice(0,stringArray.length-1).join('');
 				EssayModel.loadAll(title,loadEssays);
+				clickCatalogueAnalog();
 			}
+			console.log(global.catalogue);
 			function loadEssays(error,essays){
 				if(error) return console.log(error);
 				global.catalogue = [];
@@ -98,8 +156,8 @@
 
 				CatalogueView.render($('#catalogues'),global.catalogue);
 				util.checkCatalogue(clickCatalogue);
-				console.log('success get');
-				console.log(global.catalogue);
+				// console.log('success get');
+				// console.log(global.catalogue);
 			}
 		}
 
@@ -108,12 +166,17 @@
 		function clickCatalogue(event){
 			console.log('click catalogue');
 			event.preventDefault();
+
 			var $target = $(event.target);
-			console.log($target);
-			if(!$target.hasClass('selected')){
-				$target.parents('#catalogues').find('.catalogue').removeClass('selected');
-				$target.parents('.catalogue').addClass('selected');
+			if(!$(this).hasClass('selected')){
+				$('#catalogues').find('.catalogue').removeClass('selected');
+				$(this).addClass('selected');
+
+				global.selectedEssay = util.findSelectOne($(this).find('h5').text(), global.catalogue);
+
 			}
+			console.log(global.selectedEssay);
+			EssayView.render($('.content'), global.selectedEssay);
 		}
 
 
@@ -136,7 +199,7 @@
 					numberOfNote: 0,
 					alive: true
 				};
-				console.log(newNotebook);
+				// console.log(newNotebook);
 				NotebookModel.add(newNotebook,addNotebook);
 				$target.val('');
 				$target.hide();
@@ -161,9 +224,70 @@
 
 		}
 
+        // 显示编辑文章界面
+        function showEditor(){
+            CreatingEssayView.render();
+        }
+
+		// 点击保存笔记
+		function clickAddEssay(){
+			console.log('Add Essay...');
+			var newEssay = {};
+			newEssay.title = $('input.essay-title').val();
+			newEssay.content = $('.editor-area').text();
+			newEssay.alive = true;
+
+			console.log('Add new Essay:')
+			console.log(newEssay);
+			EssayModel.add(global.selectedNotebook,newEssay, addEssay);
+			function addEssay(error, essay){
+				if(error) return console.log('some error occurred');
+				// console.log('Add Essay success: ');
+
+				 console.log(essay);
+				updateNotebook('add')
+			}
+
+		}
 
 
+		function updateNotebook(op){
+			switch (op){
+				case 'add':
+					console.log('update notebook');
+					if(notebookPlus()){
+						// TODO 更新view
+						NotebookView.update($('#notebooks').find('.selected'), global.selectedNotebook);
+						console.log('Notebook update!');
+					};
+					break;
+			}
 
+			// 所有更新操作只会对选中的notebook进行
+			function notebookPlus(){
+
+				var notebook = global.selectedNotebook;
+				console.log(notebook);
+				if(notebook && notebook.id){
+					notebook.numberOfNote ++;
+					NotebookModel.update(notebook, function(error,notebook){
+						if(error) console.log(error);
+						console.log(notebook);
+						global.selectedNotebook = notebook;
+					})
+					return true;
+				}else{
+					console.log("can't find seleted notebook!");
+					return false;
+				}
+			}
+		}
+
+		function clickCatalogueAnalog(){
+			if($('.catalogue').length > 0){
+				$('.catalogue').first().trigger('click');
+			}
+		}
 	})
 	$('.editor-area').on('paste',function(){
 		var $this=$(this);
@@ -177,4 +301,6 @@
 	$('a').click(function(event){
 		event.preventDefault();
 	})
+
+
 })(this,this.document);

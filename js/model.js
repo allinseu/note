@@ -22,7 +22,7 @@
      */
 	NotebookModel.loadAll = function(callback){
 		// TODO
-        console.log("load all");
+        //console.log("load all");
         var NotebookCollection = AV.Collection.extend({
             model: Notebook
         });
@@ -35,14 +35,13 @@
             return object.createdAt.getTime();
         }
 
-
         notebookCollection.fetch({
             success: function(collection){
                 collection.models.forEach(function(item){
                     var notebook  = {};
                     util.cloneNotebook(item, notebook);
-                    notebooks.push(notebook);
-                    leanNotebooks.push(item);
+                    notebooks.unshift(notebook);
+                    leanNotebooks.unshift(item);
                     //console.log(item.createdAt);
                     //console.log(notebook);
                 });
@@ -94,12 +93,21 @@
     NotebookModel.update = function(notebook, callback){
     	// TODO
         var query = new AV.Query(Notebook);
-        console.log(id);
-        query.get(id,{
-            success: function(notebook){
+        console.log(notebook.id);
+        query.get(notebook.id,{
+            success: function(notebookObj){
                 console.log("查询返回的:");
-                console.log(notebook);
-                callback(null,notebook);
+                console.log(notebookObj);
+                notebookObj.set('numberOfNote', notebook.numberOfNote);
+                notebookObj.save()
+                    .done(function(notebookObj){
+                        callback(null,util.cloneNotebook(notebookObj));
+                        console.log('success update:'+ notebookObj);
+                    })
+                    .fail(function(notebookObj,error){
+                        console.log('failed update:'+error);
+                        callback(error,notebookObj);
+                    });
             },
             error: function(notebook,error){
                 console.log(error);
@@ -161,11 +169,9 @@
             collection.models.forEach(function(item){
                 var essay = {}
                 util.cloneEssay(item,essay);
-                essays.push(essay);
+                essays.unshift(essay);
             })
             callback(null,essays);
-            // console.log(collection);
-            console.log('success load');s
         }
         function failed(collection,error){
             if(error) console.log('failed');
@@ -173,17 +179,31 @@
 
     }
 
-    /* Adds the given essay to the specific notebook. The catalogue must *not* have
+    /* Adds the given essay to the specific notebook. The essay must *not* have
   	 * an id associated with it.
      *
-   	 *  Calls: callback(error, notebook)
+   	 *  Calls: callback(error, essay)
      *  error -- the error that occurred or NULL if no error occurred
-     *  notebook -- the notebook added, with an id attribute
+     *  essay -- the notebook added, with an id attribute
      */
-    EssayModel.add = function(essay, callback){
+    EssayModel.add = function(notebookTitle, essay, callback){
     	// TODO
+        notebookTitle = (typeof notebookTitle) == "string"?notebookTitle: notebookTitle.title;
+        console.log(notebookTitle);
+        var Essay = AV.Object.extend(notebookTitle);
+        var essayObj = new Essay();
+        essayObj.save(essay)
+            .done(function(essayObj){
+                    console.log('addEssay essay: '+essayObj);
+                    callback(null, util.cloneEssay(essayObj));
+                })
+            .fail(function(essay,error){
+                   // console.log(error);
+                    console.log('failed in addEssay: '+error);
+                    callback(error);
+                })
     }
-
+    //EssayModel.add();
     /* Updates the given entry. The entry must have an id attribute that
      * identifies it.
      *
