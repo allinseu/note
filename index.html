@@ -23,50 +23,32 @@
                     <i class="fa fa-trash-o deleteNotebook"></i>
                 </div>
                 <div>
-
-                    <ul id="notebooks">
-
-                    </ul>
                     <input type="text" class="inputAddNotebook"/>
+                    <ul id="notebooks"></ul>
                 </div>
             </div>
             <div class="container">
                 <div class="sidebar">
                     <div class="sidebar_header">
                         <span class="title">笔记</span>
-                        <span class="button g_pointer"><i class="fa fa-pencil-square-o"></i>新建笔记</span>
+                        <span class="button g_pointer create-essay"><i class="fa fa-pencil-square-o"></i>新建笔记</span>
                     </div>
                     <div class="sidebar_content">
-                        <ul id="catalogues">
-
-                        </ul>
+                        <ul id="catalogues"></ul>
                     </div>
                 </div>
 
-                <div class="content" >
-                    <div class="menubar_tool content_close g_pointer"> <i class="fa fa-times "></i></div>
-                    <div class="content_header">
-                        <h2>闲慢的碎步</h2>
-                        <span></span>
-                    </div>
-                    <div class="content_page">
-                        <p>
-                            风雅是什么，长在俗气的工商县城的我不曾知道。后来读到谷崎润一郎说，日本的厕所还是比西式的好，建在院子里的僻静角落，用木头搭成整齐的一间，在这样阴翳私密的所在，可以一边释放自己，一边吹风听雨，唯一坏处是秋冬易感风寒。但“风寒就是雅”。
-                        </p>
-                        <p>
-                            这样说起来，读中学的时候，咱风寒倒是常染的，淋着雨散步是家常便饭。虽然不比“细雨骑驴入剑门”，但喜欢在秋雨中，甩着水滴和伞柄四处走走，任由水流从额头淌下湿透胸口和肚皮。雨水洗去了街上一夏天浮尘的臭气，倒映着阴阴漠漠的天空，留出清凉洁净，即便冷过头了，施施而独行，风一刮微微颤抖，也不改其乐，趁势唱两首不很懂的感伤情歌给自己听。这种青春期假装颓唐的愚行，既能满足我家中独子天生的脆弱和自怜，又能任雨声雨幕模糊了一切有所作为的努力，积水在城市中变成浅渚、溪流和浪花，挡住车流人流的去路，在我心里创造出幸灾乐祸的舒畅心境。
-                        </p>
-                        <p>
-                            浙江的夏秋台风天多，我喜欢在在街旁的洪溪里骑车蹚水。一回和表弟台风天出去骑车，见街上洪流滚滚，喜不自胜，我们激流勇进，直到车的条幅被水力拧弯、实在没法走了才悻悻而返，家里人已经急得乱转。那时候，电视上在播《将爱情进行到底》，李亚鹏在片尾曲里淋着雨跑呀跑，手机普及以后，不怎么见淋雨的片子了，热恋中的人似乎没那么鸡贼。
-                        </p>
-                    </div>
+                <div class="content">
                 </div>
 
-                <div class="editor" style="display: none">
-                    <input type="text" name="note_title" placeholder="输入笔记标题">
+                <div class="editor"  style="display: none">
+                    <input type="text" class="essay-title" name="note_title" placeholder="输入笔记标题">
                     <div class="editor-container" >
+                        <div class="editor-menu">
+                                <i class="fa fa-bars fa-1x"></i>
+                                <i class="fa fa-floppy-o add-essay"></i>
+                        </div>
                         <div class="editor-area" contenteditable="true">
-                            
                         </div>
                     </div>
                 </div>
@@ -101,8 +83,8 @@
         <li class="catalogue selected" data-id="">
             <a href="#">
                 <div class="cite">
-                    <h5>这儿还没有笔记呢</h5>
-                    <p>快写一篇吧，快些一篇吧~~快呀~快呀~</p>
+                    <h5>{{title}}</h5>
+                    <p>{{body}}</p>
                 </div>
             </a>
         </li>
@@ -113,10 +95,22 @@
             <a href="#">
                 <div class="cite">
                     <h5>{{title}}</h5>
-                    <p>{{short}}…</p>
+                    <p>{{short}}</p>
                 </div>
             </a>
         </li>
         {{/each}}
+    </script>
+
+    <script id="essay-template" type="text/x-handlebars-template">
+        <div class="menubar_tool content_close g_pointer"> <i class="fa fa-times "></i></div>
+        <div class="content_header">
+                <h2>{{title}}</h2>
+                <span></span>
+                </div>
+                <div class="content_page">
+                    {{paragraphSplit content}}
+                </div>
+        </div>
     </script>
 </html>

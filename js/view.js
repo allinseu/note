@@ -10,7 +10,7 @@
 		var notebookTemplate = Handlebars.compile($('#notebook-template').html());
 		if($.isArray(notebookData)){
 			// 如果是数组，则渲染所有元素
-			console.log('render Notebook: ', notebookData)
+			// console.log('render Notebook: ', notebookData)
 			var content = {
 				notebooks: notebookData
 			};
@@ -26,12 +26,23 @@
 			notebookTemplate = Handlebars.compile(newLi);
 			if(notebookData.id){
 				newLi = notebookTemplate(notebookData);
-				$notebook.append(newLi);
+				$(newLi).insertBefore($notebook.find('li')[0]);
+				$($notebook.find('li')[0]).trigger('click');
 			}
 
 		}
 	};
 
+
+    NotebookView.update = function($notebookNode, notebookData){
+        $notebookNode = $($notebookNode);
+        var node = $('#notebookNode-template').html();
+        var notebookTemplate = Handlebars.compile(node);
+
+        if(notebookData.id){
+            $notebookNode.html($(notebookTemplate(notebookData))[0].innerHTML);
+        }
+    }
 
 	/* Rends the sidebar area, show the catalogue of one notebook. Requires the 
 	 * object representing the catalogue of selected notebook. If this object is 
@@ -42,24 +53,42 @@
 	  // TODO
 		var catalogueTemplate;
 		if($.isArray(catalogueData)){
-			console.log("rend catalogue start...");
+			// console.log("rend catalogue start...");
 
 			var content ={
 				catalogues: catalogueData
 			}
 
 			if(catalogueData.length){
-				console.log('4');
 				catalogueTemplate = Handlebars.compile($('#catalogue-template').html());
 				$catalogue.html(catalogueTemplate(content));
 			}else{
 				console.log('none');
+				var context = {
+					title: "这儿还没有笔记呢",
+					body: "赶紧动手写一篇吧~啦啦啦~啦啦啦~今天气晴朗呀~"
+				};
 				catalogueTemplate = Handlebars.compile($('#emptyCatalogue-template').html())
-				$catalogue.html(catalogueTemplate());
+				$catalogue.html(catalogueTemplate(context));
 			}
 		}else{
 			console.log('catalogueData is not an Array');
+
 		}
+	};
+
+	/* Renders a view to allow the user to create a catalogue. Requires the $catalogues
+	 * element and an object representing the active entry. */
+	var CreatingCatalogue ={};
+	CreatingCatalogue.render = function($catalogue) {
+		// TODO
+		var catalogueTemplate = Handlebars.compile($('#emptyCatalogue-template').html());
+		var context ={
+			title: "标题",
+			body: "令人虎躯一震的内容"
+			};
+		$(catalogueTemplate(context)).insertBefore($catalogue.find('.catalogue:first-child'));
+
 	};
 
 
@@ -70,26 +99,43 @@
 	var EssayView ={};
 	EssayView.render = function($essay, activeEssayData){
 		// TODO
+        $('.editor').hide();
+        $('.content').show();
+        var essayTemplate = Handlebars.compile($('#essay-template').html());
+        if(activeEssayData.title && activeEssayData.content){
+            $essay.html(essayTemplate(activeEssayData));
+        }
+
 	}
 
 	/* Renders a view to allow the user to create an essay. Requires the $essay
    * element. */
 	var CreatingEssayView ={};
-	CreatingEssayView.render = function($essay){
+	CreatingEssayView.render = function(){
 		// TODO
+
+		$('.content').hide();
+		$('.editor').show();
 	}
 
-	/* Renders a view to allow the user to edit an entry. Requires the $entry
-     * element and an object representing the active entry. */
-    var EditingEssayView ={};
-    EditingEssayView.render = function($entry, activeEssayData) {
-      // TODO
-    };
+
 
 	window.NotebookView  = NotebookView;
 	window.CatalogueView = CatalogueView;
+	window.CreatingCatalogue = CreatingCatalogue;
 	window.EssayView     = EssayView;
 	window.CreatingEssayView = CreatingEssayView;
 
+
+    Handlebars.registerHelper('paragraphSplit', function(plaintext) {
+        var i, output = '',
+            lines = plaintext.split(/\r\n|\r|\n/g);
+        for (i = 0; i < lines.length; i++) {
+            if(lines[i]) {
+                output += '<p>' + lines[i] + '</p>';
+            }
+        }
+        return new Handlebars.SafeString(output);
+    });
 
 })(this, this.document);
