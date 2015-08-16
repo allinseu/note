@@ -87,7 +87,6 @@
 			title: "标题",
 			body: "令人虎躯一震的内容"
 			};
-		console.log(catalogueTemplate(context));
 		$(catalogueTemplate(context)).insertBefore($catalogue.find('.catalogue:first-child'));
 
 	};
@@ -104,7 +103,7 @@
         $('.content').show();
         var essayTemplate = Handlebars.compile($('#essay-template').html());
         if(activeEssayData.title && activeEssayData.content){
-            $essay.html(essayTemplate(activeEssayData).replace('\n','</p><p>'));
+            $essay.html(essayTemplate(activeEssayData));
         }
 
 	}

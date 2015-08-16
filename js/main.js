@@ -20,6 +20,7 @@
 	global.essay     = {};
 	global.selectedNotebook = null;
 	global.selectedEssay = null;
+	global.state    = "read";   // state can be read or write or pending
 
 	/* Handles all the logic here */
 	$(document).ready(function(){
@@ -53,7 +54,6 @@
 		}
 
 
-
 		// 添加笔记本的input失去焦点，如果里面没有内容则隐藏输入框，如果有内容，则保存
 		$('.inputAddNotebook').blur(inputAddNotebookBlur);
 
@@ -73,6 +73,7 @@
         $(document).on('keyup','.essay-title', function(){
             var title = $(this).val()||'标题';
             $('.catalogue.selected').find('h5').html(title);
+			checkState();
         })
 
 		$(document).on('keyup','.editor-area', function(){
@@ -81,15 +82,24 @@
 				content = content.slice(0,80)+'...';
 			}
 			$('.catalogue.selected').find('p').html(content);
+			checkState();
 		})
 
+		function checkState(){
+			if($('.essay-title').val() && $('.editor-area').html()){
+				global.state = "write";
+			}
+		}
 		$('.add-essay').click(clickAddEssay);
 
         function clickCreateEssay(){
-            console.log($('.catalogue'));
-            $('.catalogue').removeClass('selected');
-            showEditor();
-            CreatingCatalogue.render($('#catalogues'));
+            //console.log($('.catalogue'));
+			if(global.state === "read"){
+				$('.catalogue').removeClass('selected');
+				CreatingCatalogue.render($('#catalogues'));
+			}
+			showEditor();
+
         }
 
 		// 得到所有的notebook 通过view.js渲染
@@ -135,27 +145,24 @@
 				$('.deleteNotebook').addClass('g_pointer')
 				var stringArray = $target.text().split('(');
 				var title = stringArray.slice(0,stringArray.length-1).join('');
-				console.log(global.notebooks);
+				//console.log(global.notebooks);
 				global.selectedNotebook = util.findSelectOne(title,global.notebooks);
-				console.log('Select notebook: ' +global.selectedNotebook);
-
+				//console.log('Select notebook: ' +global.selectedNotebook);
+				global.state = 'read';
 				if(stringArray[stringArray.length-1] === "0)"){
 					CatalogueView.render($('#catalogues'),[]);
+					showEditor();
 					return 'no essay';
 				}
 				EssayModel.loadAll(title,loadEssays);
-				clickCatalogueAnalog();
 			}
-			console.log(global.catalogue);
 			function loadEssays(error,essays){
 				if(error) return console.log(error);
-				global.catalogue = [];
-				essays.forEach(function(item){
-					global.catalogue.push(item);
-				});
-
+				global.catalogue = essays;
+				//console.log(essays);
 				CatalogueView.render($('#catalogues'),global.catalogue);
 				util.checkCatalogue(clickCatalogue);
+				clickCatalogueAnalog();
 				// console.log('success get');
 				// console.log(global.catalogue);
 			}
@@ -172,11 +179,37 @@
 				$('#catalogues').find('.catalogue').removeClass('selected');
 				$(this).addClass('selected');
 
-				global.selectedEssay = util.findSelectOne($(this).find('h5').text(), global.catalogue);
 
+				if(global.state === "write"){
+					console.log('i save.....');
+					var newEssay = {};
+					newEssay.title = $('input.essay-title').val();
+					newEssay.content = $('.editor-area').text();
+					newEssay.alive = true;
+
+					//console.log('Add new Essay:')
+					//console.log(newEssay);
+					EssayModel.add(global.selectedNotebook,newEssay, addEssay);
+					function addEssay(error){
+						if(error) return console.log('some error occurred');
+						// console.log('Add Essay success: ');
+						//console.log(essay);
+						updateNotebook('add')
+						global.catalogue.push(newEssay);
+						util.checkCatalogue(clickCatalogue);
+						global.state = 'read';
+					}
+				}else if(global.state === "pending"){
+					$('.catalogue').first().remove();
+				}
+
+				global.selectedEssay = util.findSelectOne($(this).find('h5').text(), global.catalogue);
+				EssayView.render($('.content'), global.selectedEssay);
+				global.state = 'read';
 			}
-			console.log(global.selectedEssay);
-			EssayView.render($('.content'), global.selectedEssay);
+			//console.log(global.selectedEssay);
+
+
 		}
 
 
@@ -187,7 +220,7 @@
 				$target.hide();
 			}else{
 				// TODO
-				console.log($target.val())
+				//console.log($target.val())
 				if(global.notebooks.some(function(item){
 						return item.title === $target.val();
 					})){
@@ -208,9 +241,9 @@
 
 		// 删除目录
 		function deleteNotebook(event){
-			console.log('deletenotebook click');
+			//console.log('deletenotebook click');
 			$notebooksDeleted = $('#notebooks').find('.selected');
-			console.log($notebooksDeleted);
+			//console.log($notebooksDeleted);
 			if($notebooksDeleted.length > 0){
 				$notebooksDeleted.each(function(index,item){
 
@@ -226,26 +259,36 @@
 
         // 显示编辑文章界面
         function showEditor(){
-            CreatingEssayView.render();
+			if(global.state === "read"){
+				$('.essay-title').val('');
+				$('.editor-area').html('');
+				CreatingEssayView.render();
+			}
+			global.state = 'pending';
+
         }
 
 		// 点击保存笔记
 		function clickAddEssay(){
-			console.log('Add Essay...');
+			//console.log('Add Essay...');
 			var newEssay = {};
 			newEssay.title = $('input.essay-title').val();
 			newEssay.content = $('.editor-area').text();
 			newEssay.alive = true;
 
-			console.log('Add new Essay:')
-			console.log(newEssay);
+			//console.log('Add new Essay:')
+			//console.log(newEssay);
 			EssayModel.add(global.selectedNotebook,newEssay, addEssay);
 			function addEssay(error, essay){
 				if(error) return console.log('some error occurred');
 				// console.log('Add Essay success: ');
-
-				 console.log(essay);
+				 //console.log(essay);
 				updateNotebook('add')
+				global.catalogue.push(newEssay);
+				util.checkCatalogue(clickCatalogue);
+				global.selectedEssay = newEssay;
+				EssayView.render($('.content'), global.selectedEssay);
+				global.state = 'read';
 			}
 
 		}
@@ -254,11 +297,11 @@
 		function updateNotebook(op){
 			switch (op){
 				case 'add':
-					console.log('update notebook');
+					//console.log('update notebook');
 					if(notebookPlus()){
 						// TODO 更新view
 						NotebookView.update($('#notebooks').find('.selected'), global.selectedNotebook);
-						console.log('Notebook update!');
+						//console.log('Notebook update!');
 					};
 					break;
 			}
@@ -267,17 +310,17 @@
 			function notebookPlus(){
 
 				var notebook = global.selectedNotebook;
-				console.log(notebook);
+				//console.log(notebook);
 				if(notebook && notebook.id){
 					notebook.numberOfNote ++;
 					NotebookModel.update(notebook, function(error,notebook){
 						if(error) console.log(error);
-						console.log(notebook);
+						//console.log(notebook);
 						global.selectedNotebook = notebook;
 					})
 					return true;
 				}else{
-					console.log("can't find seleted notebook!");
+					//console.log("can't find seleted notebook!");
 					return false;
 				}
 			}
@@ -288,6 +331,8 @@
 				$('.catalogue').first().trigger('click');
 			}
 		}
+
+
 	})
 	$('.editor-area').on('paste',function(){
 		var $this=$(this);
