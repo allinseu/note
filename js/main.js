@@ -62,11 +62,14 @@
 			if(event.keyCode == 13){
 				inputAddNotebookBlur(event);
 			}
-		})
+		});
 
 
-		// 点击删除按钮
+		// 点击删除笔记本按钮
 		$('.deleteNotebook').click(deleteNotebook);
+
+		// 点击删除笔记按钮, 因为deleteEssay按钮可能没有生成，所以事件绑定在document上
+		$(document).on('click','.deleteEssay', clickRemoveEssay);
 
         $('.create-essay').click(clickCreateEssay);
 
@@ -74,7 +77,7 @@
             var title = $(this).val()||'标题';
             $('.catalogue.selected').find('h5').html(title);
 			checkState();
-        })
+        });
 
 		$(document).on('keyup','.editor-area', function(){
 			var content = $(this).text()||'令人虎躯一震的内容';
@@ -83,7 +86,7 @@
 			}
 			$('.catalogue.selected').find('p').html(content);
 			checkState();
-		})
+		});
 
 		function checkState(){
 			if($('.essay-title').val() && $('.editor-area').html()){
@@ -142,7 +145,7 @@
 			if(!$target.hasClass('selected')){
                 $('.notebook').removeClass('selected');
                 $target.addClass('selected');
-				$('.deleteNotebook').addClass('g_pointer')
+				$('.deleteNotebook').addClass('g_pointer');
 				var stringArray = $target.text().split('(');
 				var title = stringArray.slice(0,stringArray.length-1).join('');
 				//console.log(global.notebooks);
@@ -212,6 +215,16 @@
 
 		}
 
+		// 点击删除文章按钮
+		function clickRemoveEssay(event){
+			// TODO: 弹出提示框，询问是否确定删除
+			event.preventDefault();
+			// var $target = $(event.target);
+			removeEssay();
+			console.log("delete essay");
+
+
+		}
 
 		// 添加目录对话框失去焦点事件；如果没有输入则隐藏输入框，有输入则保存
 		function inputAddNotebookBlur(event){
@@ -275,21 +288,22 @@
 			newEssay.title = $('input.essay-title').val();
 			newEssay.content = $('.editor-area').text();
 			newEssay.alive = true;
-
-			//console.log('Add new Essay:')
-			//console.log(newEssay);
-			EssayModel.add(global.selectedNotebook,newEssay, addEssay);
-			function addEssay(error, essay){
-				if(error) return console.log('some error occurred');
-				// console.log('Add Essay success: ');
-				 //console.log(essay);
-				updateNotebook('add')
-				global.catalogue.push(newEssay);
-				util.checkCatalogue(clickCatalogue);
-				global.selectedEssay = newEssay;
-				EssayView.render($('.content'), global.selectedEssay);
-				global.state = 'read';
+			if(newEssay.title && newEssay.content){
+				EssayModel.add(global.selectedNotebook,newEssay, addEssay);
+				function addEssay(error, essay){
+					if(error) return console.log('some error occurred');
+					// console.log('Add Essay success: ');
+					//console.log(essay);
+					updateNotebook('add');
+					global.catalogue.push(newEssay);
+					util.checkCatalogue(clickCatalogue);
+					global.selectedEssay = newEssay;
+					EssayView.render($('.content'), global.selectedEssay);
+					global.state = 'read';
+				}
 			}
+
+
 
 		}
 
@@ -298,31 +312,39 @@
 			switch (op){
 				case 'add':
 					//console.log('update notebook');
-					if(notebookPlus()){
+					if(notebookPlus(1)){
 						// TODO 更新view
 						NotebookView.update($('#notebooks').find('.selected'), global.selectedNotebook);
 						//console.log('Notebook update!');
-					};
+					}
+					break;
+				case 'remove':
+					if(notebookPlus(-1)){
+						NotebookView.update($('#notebooks').find('.selected'), global.selectedNotebook);
+					}
 					break;
 			}
 
 			// 所有更新操作只会对选中的notebook进行
-			function notebookPlus(){
+			function notebookPlus(number){
 
-				var notebook = global.selectedNotebook;
-				//console.log(notebook);
-				if(notebook && notebook.id){
-					notebook.numberOfNote ++;
-					NotebookModel.update(notebook, function(error,notebook){
-						if(error) console.log(error);
-						//console.log(notebook);
-						global.selectedNotebook = notebook;
-					})
-					return true;
-				}else{
-					//console.log("can't find seleted notebook!");
-					return false;
+				if(number === 1 || number === -1){
+					var notebook = global.selectedNotebook;
+					//console.log(notebook);
+					if(notebook && notebook.id){
+						notebook.numberOfNote = notebook.numberOfNote+number;
+						NotebookModel.update(notebook, function(error,notebook){
+							if(error) console.log(error);
+							//console.log(notebook);
+							global.selectedNotebook = notebook;
+						})
+						return true;
+					}else{
+						//console.log("can't find seleted notebook!");
+						return false;
+					}
 				}
+
 			}
 		}
 
@@ -332,20 +354,79 @@
 			}
 		}
 
+		function afterRemoveEssay(){
 
-	})
+			updateView();
+
+
+			function updateView(){
+				var nextCatalogue = $('.catalogue.selected').next();
+				var prevCatalogue = $('.catalogue.selected').prev();
+				$('.catalogue.selected').remove();
+
+				if(nextCatalogue.length === 0){
+
+					if(prevCatalogue.length === 0){
+						// 没有文章了,重新渲染
+						CatalogueView.render($('#catalogues'),[]);
+						showEditor();
+					}else{
+						prevCatalogue.trigger('click');
+					}
+				}else{
+					nextCatalogue.trigger('click');
+				}
+
+				updateNotebook('remove');
+			}
+
+		}
+
+
+		function removeEssay(){
+
+			// console.log(global.selectedEssay);
+			var notebook = global.selectedNotebook.title;
+			var noteId = global.selectedEssay.id;
+
+			EssayModel.remove(notebook,noteId,function(status, error){
+				if(status === "success"){
+					// TODO update view
+					afterRemoveEssay();
+					// $('.catalogue.selected').remove();
+
+				}else if(status === "error"){
+					// report error
+					console.log(error);
+				}
+			})
+		}
+
+
+	});
+
 	$('.editor-area').on('paste',function(){
 		var $this=$(this);
 		setTimeout(function(){
 			$this.html($this.text());
 		},3);
-	})
+	});
 	$('.addNotebook').click(function(event){
 		$('.inputAddNotebook').show().focus();
-	})
+	});
 	$('a').click(function(event){
 		event.preventDefault();
-	})
+	});
 
+	// content滚动，删除button一直在右上角显示效果
+	$('.content').scroll(function(){
+		console.log($('.content').scrollTop());
+		if($('.content').scrollTop() >139){
+			$('.content_close').addClass('content_close-out');
+		}else{
+			$('.content_close').removeClass('content_close-out');
+		}
+
+	})
 
 })(this,this.document);

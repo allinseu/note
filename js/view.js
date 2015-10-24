@@ -116,6 +116,7 @@
 
 		$('.content').hide();
 		$('.editor').show();
+		$('.editor').find('input').focus();
 	}
 
 
