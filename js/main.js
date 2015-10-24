@@ -62,7 +62,7 @@
 			if(event.keyCode == 13){
 				inputAddNotebookBlur(event);
 			}
-		})
+		});
 
 
 		// 点击删除按钮
@@ -74,7 +74,7 @@
             var title = $(this).val()||'标题';
             $('.catalogue.selected').find('h5').html(title);
 			checkState();
-        })
+        });
 
 		$(document).on('keyup','.editor-area', function(){
 			var content = $(this).text()||'令人虎躯一震的内容';
@@ -83,7 +83,7 @@
 			}
 			$('.catalogue.selected').find('p').html(content);
 			checkState();
-		})
+		});
 
 		function checkState(){
 			if($('.essay-title').val() && $('.editor-area').html()){
@@ -283,7 +283,7 @@
 				if(error) return console.log('some error occurred');
 				// console.log('Add Essay success: ');
 				 //console.log(essay);
-				updateNotebook('add')
+				updateNotebook('add');
 				global.catalogue.push(newEssay);
 				util.checkCatalogue(clickCatalogue);
 				global.selectedEssay = newEssay;
@@ -333,19 +333,29 @@
 		}
 
 
-	})
+	});
 	$('.editor-area').on('paste',function(){
 		var $this=$(this);
 		setTimeout(function(){
 			$this.html($this.text());
 		},3);
-	})
+	});
 	$('.addNotebook').click(function(event){
 		$('.inputAddNotebook').show().focus();
-	})
+	});
 	$('a').click(function(event){
 		event.preventDefault();
-	})
+	});
 
+	// content滚动，删除button一直在右上角显示效果
+	$('.content').scroll(function(){
+		console.log($('.content').scrollTop());
+		if($('.content').scrollTop() >139){
+			$('.content_close').addClass('content_close-out');
+		}else{
+			$('.content_close').removeClass('content_close-out');
+		}
+
+	})
 
 })(this,this.document);
