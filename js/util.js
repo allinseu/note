@@ -87,10 +87,12 @@
             if (item.title == title) {
                 target = item;
             }
-        })
+        });
         return target;
-        console.log("something wrong as we can't find correct notebook");
-    }
+        // console.log("something wrong as we can't find item");
+    };
+
+
 
     util.cloneEssay = function (fromObj, toObj) {
         toObj = toObj || {};
