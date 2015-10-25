@@ -100,8 +100,11 @@
 		// TODO
         $('.editor').hide();
         $('.content').show();
+
+
         var essayTemplate = Handlebars.compile($('#essay-template').html());
         if(activeEssayData.title && activeEssayData.content){
+			activeEssayData.content = markdown.toHTML(activeEssayData.content);
             $essay.html(essayTemplate(activeEssayData));
         }
 

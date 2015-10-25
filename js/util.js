@@ -104,7 +104,7 @@
         toObj.id = fromObj.id;
         toObj.title = fromObj.attributes.title;
         toObj.content = fromObj.attributes.content;
-        toObj.short = fromObj.attributes.content.replace(/\n/g, "").slice(0, 80);
+        toObj.short = fromObj.attributes.content.replace(/\n/g, "").replace(/#|\*/g,' ').slice(0, 80);
         toObj.short += toObj.content.length > 80 ? '...' : '';
         toObj.date = new Date(fromObj.createdAt);
         return toObj;
@@ -112,7 +112,7 @@
 
     util.htmlFilter = function(html){
 
-        var string = html.replace(/<\/div>/g,'').replace(/<div>/g,'\n');
+        var string = html.replace(/<\/div>/g,'').replace(/<div>/g,'\n').replace(/<br>/g, '');
         return string;
     }
     window.util = util;

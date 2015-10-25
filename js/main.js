@@ -317,7 +317,11 @@
             newEssay.title = $('input.essay-title').val();
             newEssay.content = util.htmlFilter($('.editor-area').html());
             newEssay.alive = true;
-            if ( newEssay.title && newEssay.content) {
+
+            //console.log(newEssay.content);
+            console.log(markdown.toHTML(newEssay.content));
+
+            if (newEssay.title && newEssay.content) {
                 EssayModel.add(global.selectedNotebook, newEssay, addEssay);
                 function addEssay(error,essay) {
                     if (error) return console.log('some error occurred');
@@ -331,7 +335,6 @@
                     global.state = 'read';
                 }
             }
-
 
         }
 
