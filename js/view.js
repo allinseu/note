@@ -63,7 +63,6 @@
 				catalogueTemplate = Handlebars.compile($('#catalogue-template').html());
 				$catalogue.html(catalogueTemplate(content));
 			}else{
-				console.log('none');
 				var context = {
 					title: "这儿还没有笔记呢",
 					body: "赶紧动手写一篇吧~啦啦啦~啦啦啦~今天气晴朗呀~"

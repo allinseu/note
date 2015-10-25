@@ -110,6 +110,10 @@
         return toObj;
     }
 
+    util.htmlFilter = function(html){
 
+        var string = html.replace(/<\/div>/g,'').replace(/<div>/g,'\n');
+        return string;
+    }
     window.util = util;
 })(this, this.document)

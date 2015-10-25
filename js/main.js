@@ -315,9 +315,9 @@
             //console.log('Add Essay...');
             var newEssay = {};
             newEssay.title = $('input.essay-title').val();
-            newEssay.content = $('.editor-area').text();
+            newEssay.content = util.htmlFilter($('.editor-area').html());
             newEssay.alive = true;
-            if (newEssay.title && newEssay.content) {
+            if ( newEssay.title && newEssay.content) {
                 EssayModel.add(global.selectedNotebook, newEssay, addEssay);
                 function addEssay(error,essay) {
                     if (error) return console.log('some error occurred');
@@ -489,7 +489,6 @@
 
     // content滚动，删除button一直在右上角显示效果
     $('.content').scroll(function () {
-        console.log($('.content').scrollTop());
         if ($('.content').scrollTop() > 139) {
             $('.content_close').addClass('content_close-out');
         } else {
