@@ -6,22 +6,23 @@
         if ($('#notebooks').children('li').length === 0) {
             $('.deleteNotebook').hide();
         } else {
-            $('.notebook').find('a').unbind();
+            var $notebook = $('.notebook');
+            $notebook.find('a').unbind();
             $('.deleteNotebook').show();
             //$('.notebook').find('a').click(clickNotebook);
 
             // 绑定事件之前首先清理事件，否则事件会触发多次
-            $('.notebook').unbind();
-            $('.notebook').bind('click', clickNotebook);
+            $notebook.unbind();
+            $notebook.bind('click', clickNotebook);
         }
 
     }
 
     util.checkCatalogue = function (clickCatalogue) {
         // console.log('check Catalogue');
-
-        $('.catalogue').unbind();
-        $('.catalogue').bind('click', clickCatalogue);
+        var $catalogue = $('.catalogue');
+        $catalogue.unbind();
+        $catalogue.bind('click', clickCatalogue);
         // $(document).on('click', '.catalogue', clickCatalogue);
     }
 
@@ -98,18 +99,35 @@
 
     }
 
+    util.clone = function(fromObj,toObj){
+        var toObj = toObj || {};
+        for(key in fromObj){
+            if(fromObj.hasOwnProperty(key)){
+                if(fromObj[key] instanceof Object){
+                    util.clone(fromObj[key],toObj[key]);
+                }else{
+                    toObj[key] = fromObj[key];
+                }
+            }
+        }
+        return toObj;
+    }
 
     util.cloneEssay = function (fromObj, toObj) {
         toObj = toObj || {};
         toObj.id = fromObj.id;
         toObj.title = fromObj.attributes.title;
         toObj.content = fromObj.attributes.content;
-        toObj.short = fromObj.attributes.content.replace(/\n/g, "").slice(0, 80);
+        toObj.short = fromObj.attributes.content.replace(/\n/g, "").replace(/#|\*/g,' ').slice(0, 80);
         toObj.short += toObj.content.length > 80 ? '...' : '';
         toObj.date = new Date(fromObj.createdAt);
         return toObj;
+    };
+
+    util.htmlFilter = function(html){
+
+        var string = html.replace(/<\/div>/g,'').replace(/<div>/g,'\n').replace(/<br>/g, '');
+        return string;
     }
-
-
     window.util = util;
 })(this, this.document)

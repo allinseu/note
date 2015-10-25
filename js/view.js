@@ -63,7 +63,6 @@
 				catalogueTemplate = Handlebars.compile($('#catalogue-template').html());
 				$catalogue.html(catalogueTemplate(content));
 			}else{
-				console.log('none');
 				var context = {
 					title: "这儿还没有笔记呢",
 					body: "赶紧动手写一篇吧~啦啦啦~啦啦啦~今天气晴朗呀~"
@@ -97,16 +96,19 @@
 	 * picks the first existing essay. If no entry exists, this view will display
 	 * the CreatingEssayView. */
 	var EssayView ={};
-	EssayView.render = function($essay, activeEssayData){
-		// TODO
+	EssayView.render = function($essay, activeEssay){
         $('.editor').hide();
         $('.content').show();
+		var activeEssayData = util.clone(activeEssay);
+
+
         var essayTemplate = Handlebars.compile($('#essay-template').html());
         if(activeEssayData.title && activeEssayData.content){
+			activeEssayData.content = markdown.toHTML(activeEssayData.content);
             $essay.html(essayTemplate(activeEssayData));
         }
 
-	}
+	};
 
 	/* Renders a view to allow the user to create an essay. Requires the $essay
    * element. */

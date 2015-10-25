@@ -16,7 +16,8 @@ html {
 }
 *{margin: 0;padding: 0;}
 body {height: 100%;color: #555;}
-ul,ol{list-style: none;}
+ul{list-style: none;}
+ul,ol{list-style-position: inside;}
 a{text-decoration: none;color: inherit;}
 .g_pointer{cursor: pointer;}
 
@@ -221,7 +222,7 @@ a{text-decoration: none;color: inherit;}
 }
 .content_page p{
 	margin-bottom: 20px;
-	text-indent: 2em;
+	/*text-indent: 2em;*/
 }
 
 .editor{
@@ -325,6 +326,16 @@ a{text-decoration: none;color: inherit;}
 	text-align: center;
 	visibility: hidden;
 }
+.modal-preview{
+	text-align: left;
+}
+.modal-preview .modal{
+	text-align: left;
+}
+.modal-preview ul{
+	list-style-type: square;
+}
+
 .modal-frame.state-appear {
 	visibility: visible;
 }

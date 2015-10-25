@@ -21,7 +21,8 @@
     var MODALCODE = {
         duplicateNoteName: 1,
         removeNotebook: 2,
-        removeNote: 3
+        removeNote: 3,
+        previewEssay: 4
     };
 
     var modalCode = null;
@@ -315,8 +316,12 @@
             //console.log('Add Essay...');
             var newEssay = {};
             newEssay.title = $('input.essay-title').val();
-            newEssay.content = $('.editor-area').text();
+            newEssay.content = util.htmlFilter($('.editor-area').html());
             newEssay.alive = true;
+
+            //console.log(newEssay.content);
+            console.log(markdown.toHTML(newEssay.content));
+
             if (newEssay.title && newEssay.content) {
                 EssayModel.add(global.selectedNotebook, newEssay, addEssay);
                 function addEssay(error,essay) {
@@ -331,7 +336,6 @@
                     global.state = 'read';
                 }
             }
-
 
         }
 
@@ -472,6 +476,85 @@
         });
 
 
+        /*
+         * Essay Controller控制Essay Model和 Essay View的交互
+         *
+         */
+        var EssayCtrl = {};
+
+        EssayCtrl.$editorTitle = $('input.essay-title');
+        EssayCtrl.$editorContent = $('div.editor-area');
+
+        // 处理内容得到Essay markdown HTML
+        EssayCtrl.contentToHtml = function(content){
+            return markdown.toHTML(util.htmlFilter(content));
+        };
+        // 实现预览功能
+        EssayCtrl.preview = function(){
+            var content = this.$editorContent.html();
+            var message = {
+                title:this.$editorTitle.val(),
+                content: this.contentToHtml(content)
+            };
+            console.log(message);
+            modalCode = MODALCODE.previewEssay;
+            ModalCtrl.show(message);
+        };
+
+        $('.preview-essay').click(function(){
+            EssayCtrl.preview();
+        });
+
+
+
+        /*
+         * Modal COntroller 控制弹窗的行为
+         *
+         */
+        var ModalCtrl = {};
+        ModalCtrl.$modal = $('.modal-frame');
+        ModalCtrl.$overlay = $('.modal-overlay');
+        ModalCtrl.$confirmBtn = $('.modal-btn');
+        ModalCtrl.$title = $('.modal-title');
+        ModalCtrl.$content = $('.modal-content');
+        ModalCtrl.message = {};
+
+        ModalCtrl.show = function(message){
+            this.message = message;
+            this.$confirmBtn.unbind();
+            switch (modalCode) {
+                case MODALCODE.duplicateNoteName:
+                    break;
+                case MODALCODE.removeNotebook:
+                    this.$confirmBtn.click(deleteNotebook);
+                    break;
+                case MODALCODE.removeNote:
+                    this.$confirmBtn.click(removeEssay);
+                    break;
+                case MODALCODE.previewEssay:
+                    this.$modal.addClass('modal-preview');
+                    break;
+            }
+            this.$title.html(this.message.title);
+            this.$content.html(this.message.content);
+            this.$overlay.addClass('state-show');
+            this.$modal.removeClass('state-leave').addClass('state-appear');
+        };
+
+        ModalCtrl.hide = function(){
+            switch (modalCode) {
+                case MODALCODE.duplicateNoteName:
+                    $('.inputAddNotebook').focus();
+                case MODALCODE.previewEssay:
+                    this.$modal.removeClass('modal-preview');
+                    break;
+            }
+            this.$overlay.removeClass('state-show');
+            this.$modal.removeClass('state-appear').addClass('state-leave');
+            this.message = {};
+        };
+
+
     });
 
     $('.editor-area').on('paste', function () {
@@ -489,7 +572,6 @@
 
     // content滚动，删除button一直在右上角显示效果
     $('.content').scroll(function () {
-        console.log($('.content').scrollTop());
         if ($('.content').scrollTop() > 139) {
             $('.content_close').addClass('content_close-out');
         } else {
