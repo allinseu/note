@@ -89,9 +89,14 @@
             }
         });
         return target;
-        // console.log("something wrong as we can't find item");
     };
 
+    util.findById = function(id, array){
+        return array.filter(function(item){
+            return item.id === id;
+        })[0];
+
+    }
 
 
     util.cloneEssay = function (fromObj, toObj) {
