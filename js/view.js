@@ -96,10 +96,10 @@
 	 * picks the first existing essay. If no entry exists, this view will display
 	 * the CreatingEssayView. */
 	var EssayView ={};
-	EssayView.render = function($essay, activeEssayData){
-		// TODO
+	EssayView.render = function($essay, activeEssay){
         $('.editor').hide();
         $('.content').show();
+		var activeEssayData = util.clone(activeEssay);
 
 
         var essayTemplate = Handlebars.compile($('#essay-template').html());
@@ -108,7 +108,7 @@
             $essay.html(essayTemplate(activeEssayData));
         }
 
-	}
+	};
 
 	/* Renders a view to allow the user to create an essay. Requires the $essay
    * element. */

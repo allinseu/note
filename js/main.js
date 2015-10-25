@@ -21,7 +21,8 @@
     var MODALCODE = {
         duplicateNoteName: 1,
         removeNotebook: 2,
-        removeNote: 3
+        removeNote: 3,
+        previewEssay: 4
     };
 
     var modalCode = null;
@@ -473,6 +474,85 @@
             $overlay.removeClass('state-show');
             $modal.removeClass('state-appear').addClass('state-leave');
         });
+
+
+        /*
+         * Essay Controller控制Essay Model和 Essay View的交互
+         *
+         */
+        var EssayCtrl = {};
+
+        EssayCtrl.$editorTitle = $('input.essay-title');
+        EssayCtrl.$editorContent = $('div.editor-area');
+
+        // 处理内容得到Essay markdown HTML
+        EssayCtrl.contentToHtml = function(content){
+            return markdown.toHTML(util.htmlFilter(content));
+        };
+        // 实现预览功能
+        EssayCtrl.preview = function(){
+            var content = this.$editorContent.html();
+            var message = {
+                title:this.$editorTitle.val(),
+                content: this.contentToHtml(content)
+            };
+            console.log(message);
+            modalCode = MODALCODE.previewEssay;
+            ModalCtrl.show(message);
+        };
+
+        $('.preview-essay').click(function(){
+            EssayCtrl.preview();
+        });
+
+
+
+        /*
+         * Modal COntroller 控制弹窗的行为
+         *
+         */
+        var ModalCtrl = {};
+        ModalCtrl.$modal = $('.modal-frame');
+        ModalCtrl.$overlay = $('.modal-overlay');
+        ModalCtrl.$confirmBtn = $('.modal-btn');
+        ModalCtrl.$title = $('.modal-title');
+        ModalCtrl.$content = $('.modal-content');
+        ModalCtrl.message = {};
+
+        ModalCtrl.show = function(message){
+            this.message = message;
+            this.$confirmBtn.unbind();
+            switch (modalCode) {
+                case MODALCODE.duplicateNoteName:
+                    break;
+                case MODALCODE.removeNotebook:
+                    this.$confirmBtn.click(deleteNotebook);
+                    break;
+                case MODALCODE.removeNote:
+                    this.$confirmBtn.click(removeEssay);
+                    break;
+                case MODALCODE.previewEssay:
+                    this.$modal.addClass('modal-preview');
+                    break;
+            }
+            this.$title.html(this.message.title);
+            this.$content.html(this.message.content);
+            this.$overlay.addClass('state-show');
+            this.$modal.removeClass('state-leave').addClass('state-appear');
+        };
+
+        ModalCtrl.hide = function(){
+            switch (modalCode) {
+                case MODALCODE.duplicateNoteName:
+                    $('.inputAddNotebook').focus();
+                case MODALCODE.previewEssay:
+                    this.$modal.removeClass('modal-preview');
+                    break;
+            }
+            this.$overlay.removeClass('state-show');
+            this.$modal.removeClass('state-appear').addClass('state-leave');
+            this.message = {};
+        };
 
 
     });
