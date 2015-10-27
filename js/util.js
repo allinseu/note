@@ -80,6 +80,7 @@
         toObj.id = fromObj.id;
         toObj.title = fromObj.attributes.title;
         toObj.numberOfNote = parseInt(fromObj.attributes.numberOfNote);
+        toObj.alive = fromObj.attributes.alive;
         return toObj;
     }
     util.findSelectOne = function (title, array) {
@@ -97,7 +98,7 @@
             return item.id === id;
         })[0];
 
-    }
+    };
 
     util.clone = function(fromObj,toObj){
         var toObj = toObj || {};
@@ -117,6 +118,7 @@
         toObj = toObj || {};
         toObj.id = fromObj.id;
         toObj.title = fromObj.attributes.title;
+        toObj.className = fromObj.attributes.className;
         toObj.content = fromObj.attributes.content;
         toObj.short = fromObj.attributes.content.replace(/\n/g, "").replace(/#|\*/g,' ').slice(0, 80);
         toObj.short += toObj.content.length > 80 ? '...' : '';
