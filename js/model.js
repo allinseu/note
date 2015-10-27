@@ -14,41 +14,42 @@
     var NotebookModel = {};
 
 
-    /* Loads all noteboolks from the localstorage.
+    // 定义notebook对象, objectId是leancloud生成，作为笔记本的类名
+    NotebookModel.notebook = {
+        title: '',
+        alive: false,
+        numberOfNote: 0,
+        id: ''
+    };
+
+    NotebookModel.notebooks = [];
+
+    /*  从LeanCloud获得所有的笔记本数据。
      *
      *  Calls: callback(error, entries)
      *  error -- the error that occurred or NULL if no error occurred
      *  notebooks -- an array of entries
      */
     NotebookModel.loadAll = function (callback) {
-        // TODO
-        //console.log("load all");
-        var NotebookCollection = AV.Collection.extend({
-            model: Notebook
-        });
         var query = new AV.Query(Notebook);
         query.equalTo("alive", true);
         var notebookCollection = query.collection();
 
-        var notebooks = [];
         notebookCollection.comparator = function (object) {
             return object.createdAt.getTime();
-        }
+        };
 
         notebookCollection.fetch({
             success: function (collection) {
+                NotebookModel.notebooks = [];
                 collection.models.forEach(function (item) {
-                    var notebook = {};
-                    util.cloneNotebook(item, notebook);
-                    notebooks.unshift(notebook);
-                    leanNotebooks.unshift(item);
-                    //console.log(item.createdAt);
-                    //console.log(notebook);
+
+                    var notebook = util.cloneNotebook(item);
+                    NotebookModel.notebooks.unshift(notebook);
+
                 });
 
-
-                Global.notebooks = notebooks;
-                callback(false, notebooks);
+                callback(false, NotebookModel.notebooks);
             },
             error: function (collection, error) {
                 console.log(error);
@@ -69,22 +70,25 @@
     NotebookModel.add = function (notebook, callback) {
         // TODO
         var notebookObj = new Notebook();
+        NotebookModel.checkNotebook(notebook);
+
         notebookObj.save(notebook,
             {
                 success: function (notebook) {
-                    var retNotebook = {};
-                    util.cloneNotebook(notebook, retNotebook);
-                    leanNotebooks.push(notebook);
+                    var retNotebook = util.cloneNotebook(notebook);
+                    //util.cloneNotebook(notebook, retNotebook); // TODO DELETE
+                    //leanNotebooks.push(notebook); // TODO DELETE
+
+                    NotebookModel.notebooks.push(retNotebook);
                     callback(null, retNotebook);
                 },
                 error: function (notebook, error) {
-                    var retNotebook = {};
                     console.log(error);
                     callback(error, notebook);
                 }
             });
 
-    }
+    };
 
     /* Updates the given entry. The entry must have an id attribute that
      * identifies it.
@@ -94,8 +98,10 @@
      */
 
     NotebookModel.update = function (notebook, callback) {
-        // TODO
+
         var query = new AV.Query(Notebook);
+        NotebookModel.checkNotebook(notebook);
+
         query.get(notebook.id, {
             success: function (notebookObj) {
                 notebookObj.set('numberOfNote', notebook.numberOfNote);
@@ -103,24 +109,24 @@
                     .done(function (notebookObj) {
                         var notebook = util.cloneNotebook(notebookObj);
 
-                        Global.notebooks.forEach(function(item){
-                            if(item.id === notebook.id){
+                        NotebookModel.notebooks.forEach(function (item) {
+                            if (item.id === notebook.id) {
                                 util.cloneNotebook(notebook, item);
                             }
                         });
 
-                        //console.log(Global.notebooks);
                         callback(null, notebook);
 
-                        //console.log('success update:' + notebookObj);
+
                     })
 
                     .fail(function (notebookObj, error) {
+                        console.error(arguments);
                         callback(error, notebookObj);
                     });
             },
             error: function (notebook, error) {
-                console.log(error);
+                console.error(arguments);
                 callback(error, notebook);
             }
         });
@@ -132,37 +138,73 @@
      *  error -- the error that occurred or NULL if no error occurred
      */
     NotebookModel.remove = function (id, callback) {
-        // TODO
+
         //console.log('remove called');
-        var objs = leanNotebooks.filter(function (item) {
-            return item.id === id;
+        console.log(id);
+        console.log(NotebookModel.notebooks);
+
+
+        var query = new AV.Query(Notebook);
+
+        query.get(id, {
+            success: function (notebookObj) {
+                notebookObj.set('alive', false);
+                notebookObj.save();
+
+                var temp = NotebookModel.notebooks.filter(function (item) {
+                    return item.id !== notebookObj.id;
+                });
+
+                NotebookModel.notebooks = temp;
+                callback(null, notebookObj);
+            },
+            error: function (notebook, error) {
+                console.error(arguments);
+                callback(error, notebook);
+            }
         });
 
-        var objs2 = Global.notebooks.filter(function(item){
-            return item.id !== id;
-        });
+
+    };
 
 
+    NotebookModel.checkNotebook = function (notebook) {
 
-        var deleteNotebook = objs[0];
+        notebook.title = notebook.title || "untitled";
+        notebook.alive = notebook.alive || true;
+        notebook.numberOfNote = notebook.numberOfNote || 0;
 
-        deleteNotebook.set('alive', false);
-        deleteNotebook.save().then(successFunc, errorFunc);
-        function successFunc(obj) {
-            Global.notebooks = objs2;
-            callback(null, obj);
+    };
 
+    NotebookModel.getId = function () {
+        return this.notebook.id;
+    };
+
+    NotebookModel.selectNotebook = function (id) {
+        NotebookModel.notebook = util.findById(id, NotebookModel.notebooks);
+    };
+
+    NotebookModel.updateNumber = function (num) {
+        if (typeof num === "number") {
+            NotebookModel.notebook.numberOfNote += num;
+        } else if (num === "fix") {
+            NotebookModel.notebook.numberOfNote = EssayModel.essays.length;
         }
-
-        function errorFunc(obj, error) {
-            console.log('failed');
-            callback(error, obj);
-        }
-
-    }
+    };
 
 
     var EssayModel = {};
+
+    EssayModel.essay = {
+        id: '',
+        className: '',
+        title: '',
+        content: '',
+        alive: false
+    };
+
+    EssayModel.essays = [];
+
 
     /* Loads all catalogues of the notebook from the server.
      *
@@ -170,9 +212,10 @@
      *  error -- the error that occurred or NULL if no error occurred
      *  notebooks -- an array of entries
      */
-    EssayModel.loadAll = function (title, callback) {
-        // TODO
-        var Notes = AV.Object.extend(title);
+    EssayModel.loadAll = function (className, callback) {
+
+        className = 'x' + className;
+        var Notes = AV.Object.extend(className);
         var NoteCollection = AV.Collection.extend({
             model: Notes,
             query: (new AV.Query(Notes)).equalTo("alive", true)
@@ -181,18 +224,18 @@
 
         noteCollection.fetch().then(success, failed);
         function success(collection) {
-            var essays = [];
+            EssayModel.essays = [];
             collection.models.forEach(function (item) {
                 var essay = {};
                 util.cloneEssay(item, essay);
-                essays.unshift(essay);
+                essay.className = className;
+                EssayModel.essays.unshift(essay);
             });
-            Global.essays = essays;
-            callback(null, essays);
+            callback(null, EssayModel.essays);
         }
 
-        function failed(collection, error) {
-            if (error) console.log('failed');
+        function failed() {
+            console.error(arguments);
         }
 
     }
@@ -204,23 +247,30 @@
      *  error -- the error that occurred or NULL if no error occurred
      *  essay -- the notebook added, with an id attribute
      */
-    EssayModel.add = function (notebookTitle, essay, callback) {
-        // TODO
-        notebookTitle = (typeof notebookTitle) == "string" ? notebookTitle : notebookTitle.title;
+    EssayModel.add = function (className, essay, callback) {
+
+        if ((typeof className) !== "string") {
+            console.error("Essay class name is wrong");
+            return
+        }
+        var notebookTitle = 'x' + className;
+
+        EssayModel.checkEssay(essay);
+
         var Essay = AV.Object.extend(notebookTitle);
         var essayObj = new Essay();
         essayObj.save(essay)
-            .done(function (essayObj) {
-                var essay = util.cloneEssay(essayObj)
+            .done(function (response) {
+                var essay = util.cloneEssay(response);
+                EssayModel.essays.push(essay);
                 callback(null, essay);
-                Global.essays.push(essay);
             })
             .fail(function (essay, error) {
                 // console.log(error);
-                //console.log('failed in addEssay: ' + error);
+                console.error(arguments);
                 callback(error);
             })
-    }
+    };
 
     /* Updates the given entry. The entry must have an id attribute that
      * identifies it.
@@ -238,30 +288,57 @@
      * Calls: callback(error)
      *  error -- the error that occurred or NULL if no error occurred
      */
-    EssayModel.remove = function (notebookTitle, id, callback) {
+    EssayModel.remove = function (className, id, callback) {
         // TODO
+        console.log(arguments);
         //console.log("The essay " + id + " will be deleted");
-        var Essay = AV.Object.extend(notebookTitle);
+        className = 'x' + className;
+        var Essay = AV.Object.extend(className);
         var query = new AV.Query(Essay);
         query.get(id, {
             success: function (essay) {
                 // 成功，回调中可以取得这个 Post 对象的一个实例，然后就可以修改它了
                 essay.set('alive', false);
-                essay.save();
-                callback('success');
-
-                var essays = Global.essays.filter(function(item){
-                    return item.id !== id;
+                essay.save().done(function(){
+                    console.log(arguments);
+                    var essays = EssayModel.essays.filter(function (item) {
+                        return item.id !== id;
+                    });
+                    EssayModel.essays = essays;
+                    callback('success');
+                }).failed(function(){
+                    console.log(arguments)
+                    var essays = EssayModel.essays.filter(function (item) {
+                        return item.id !== id;
+                    });
+                    EssayModel.essays = essays;
+                    callback('success');
                 });
-                Global.essays = essays;
+
+
+
             },
             error: function (object, error) {
                 // 失败了.
+                console.error(arguments);
                 callback('error', object);
             }
         });
 
     };
+
+    EssayModel.checkEssay = function (essay) {
+
+        essay.title = essay.title || "untitled";
+        essay.alive = essay.alive || true;
+        essay.content = essay.content || "This shouldn't be seen. Something wrong happened";
+
+    };
+
+    EssayModel.selectEssay = function (id) {
+        EssayModel.essay = util.findById(id, EssayModel.essays);
+    };
+
     window.NotebookModel = NotebookModel;
     window.EssayModel = EssayModel;
 

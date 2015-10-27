@@ -5,8 +5,6 @@
 	 * and  notebookData object
 	 */
 	NotebookView.render = function($notebook, notebookData){
-		// TODO
-
 		var notebookTemplate = Handlebars.compile($('#notebook-template').html());
 		if($.isArray(notebookData)){
 			// 如果是数组，则渲染所有元素
@@ -26,11 +24,20 @@
 			notebookTemplate = Handlebars.compile(newLi);
 			if(notebookData.id){
 				newLi = notebookTemplate(notebookData);
-				$(newLi).insertBefore($notebook.find('li')[0]);
-				$($notebook.find('li')[0]).trigger('click');
+				if($notebook.find('li').length>0){
+					$(newLi).insertBefore($notebook.find('li')[0]);
+				}else{
+					$notebook.append($(newLi));
+				}
+
+
 			}
 
 		}
+	};
+
+	NotebookView.renderItem = function($notebook, notebook){
+		NotebookView.render($notebook, notebook);
 	};
 
 
@@ -42,7 +49,7 @@
         if(notebookData.id){
             $notebookNode.html($(notebookTemplate(notebookData))[0].innerHTML);
         }
-    }
+    };
 
 	/* Rends the sidebar area, show the catalogue of one notebook. Requires the 
 	 * object representing the catalogue of selected notebook. If this object is 
