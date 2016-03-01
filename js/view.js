@@ -41,7 +41,7 @@
 	};
 
 
-    NotebookView.update = function($notebookNode, notebookData){
+  NotebookView.update = function($notebookNode, notebookData){
         $notebookNode = $($notebookNode);
         var node = $('#notebookNode-template').html();
         var notebookTemplate = Handlebars.compile(node);
