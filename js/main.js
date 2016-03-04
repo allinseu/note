@@ -5,7 +5,7 @@
 
     //notebookObj.save({title: "设计",numberOfNote:"10"}, {
     //	success: function(object) {
-    //		console.log(object);
+    //		//console.log(object);
     //	}
     //});
 
@@ -41,18 +41,18 @@
 
         NotebooksCtrl.init = function(){
 
-            console.log('Notebook init start...');
+            //console.log('Notebook init start...');
             NotebooksCtrl.$notebookArea = $('#notebooks');
 
             NotebooksCtrl.loadNotebooks(function(){
-                console.log('Notebook init finished...');
-                // console.log('Load all catalogue');
+                //console.log('Notebook init finished...');
+                // //console.log('Load all catalogue');
                 NotebooksCtrl.set$notebooks();
                 NotebooksCtrl.set$selectedNotebook();
             });
 
             $('.addNotebook').click(function () {
-                console.log('click add notebook');
+                //console.log('click add notebook');
                 $('.inputAddNotebook').show().focus();
             });
 
@@ -66,7 +66,7 @@
             });
             // 添加目录对话框失去焦点事件；如果没有输入则隐藏输入框，有输入则保存
             function inputAddNotebookBlur(event) {
-                console.log('Add notebook start...');
+                //console.log('Add notebook start...');
                 var $target = $(event.target);
                 if (!$target.val()) {
                     $target.hide();
@@ -115,13 +115,13 @@
 
         NotebooksCtrl.loadNotebooks = function(callback){
 
-            console.log('Load notebooks start...');
+            //console.log('Load notebooks start...');
             NotebookModel.loadAll(loadNotebooksCallback);
 
             function loadNotebooksCallback(error, notebooks) {
-                console.log('Load notebooks finished...');
+                //console.log('Load notebooks finished...');
                 if (error) {
-                    console.log('error');
+                    //console.log('error');
                 } else {
                     if (notebooks === undefined || notebooks.length === 0) {
                         notebooks = [];
@@ -135,7 +135,7 @@
 
         // 单击notebook,选中当前notebook  该事件在util.checkNotebook中绑定
         NotebooksCtrl.clickNotebookEvent = function (event) {
-            console.log('Click Notebook...');
+            //console.log('Click Notebook...');
             event.preventDefault();
             $target = $(this);
             if (!$target.hasClass('selected')) {
@@ -148,7 +148,7 @@
                 NotebookModel.selectNotebook($target.data('id'));
 
                 global.state = 'read';
-                console.log('Catalogue load...');
+                //console.log('Catalogue load...');
                 if (NotebookModel.notebook.numberOfNote === 0) {
                     CatalogueView.render($('#catalogues'), []);
                     EssayCtrl.editEssay();
@@ -172,13 +172,13 @@
 
             function addNotebookCallBack(error, notebook) {
                 if (error) {
-                    console.error(error);
+                    //console.error(error);
                 } else {
-                    console.log('Add notebook success...');
+                    //console.log('Add notebook success...');
 
                     if (notebook.id) {
-                        console.log('Rend notebook node start...');
-                        console.log(NotebooksCtrl.$notebookArea);
+                        //console.log('Rend notebook node start...');
+                        //console.log(NotebooksCtrl.$notebookArea);
                         NotebookView.renderItem(NotebooksCtrl.$notebookArea, notebook);
                         NotebooksCtrl.set$notebooks();
                         NotebooksCtrl.$notebooks.first().click();
@@ -196,7 +196,7 @@
         };
 
         NotebooksCtrl.removeNotebook = function(){
-            console.log('Remove notebook start...');
+            //console.log('Remove notebook start...');
             $notebooksDeleted = NotebooksCtrl.$selectedNotebook;
 
             if ($notebooksDeleted.length > 0) {
@@ -206,10 +206,10 @@
             }
 
             function removeNotebookCallback(error, notebook) {
-                if (error) return console.log(error);
-                //console.log('remove notebook');
+                if (error) return //console.log(error);
+                ////console.log('remove notebook');
 
-                console.log('Remove notebook finish...');
+                //console.log('Remove notebook finish...');
                 NotebooksCtrl.$selectedNotebook.remove();
                 NotebooksCtrl.set$notebooks();
                 NotebooksCtrl.set$selectedNotebook();
@@ -254,7 +254,7 @@
 
         CatalogurCtrl.clickCatalogueEvent = function(){
 
-            console.log('click catalogue...');
+            //console.log('click catalogue...');
 
             var $target = $(this);
             if (!$target.hasClass('selected')) {
@@ -279,16 +279,16 @@
 
         CatalogurCtrl.loadCatalogue = function(id){
 
-            console.log('Catalogue load start...');
+            //console.log('Catalogue load start...');
             EssayModel.loadAll(id, loadEssaysCallback);
 
 
             function loadEssaysCallback(error, essays) {
-                if (error) return console.log(error);
+                if (error) return //console.log(error);
 
-                console.log('Catalogue load finishing...');
+                //console.log('Catalogue load finishing...');
                 if (NotebookModel.notebook.numberOfNote !== essays.length) {
-                    //console.log('update catalogue');
+                    ////console.log('update catalogue');
 
                     NotebookModel.NotebookModel.updateNumber('fix');
                     NotebooksCtrl.updateCatalogue();
@@ -320,7 +320,7 @@
             EssayModel.remove(NotebookModel.getId(), EssayModel.essay.id, function (status, error) {
                 if (status === "success") {
 
-                    console.log('Remove essay finish...')
+                    //console.log('Remove essay finish...')
                     var nextCatalogue = CatalogurCtrl.$selectedCatalogue.next();
                     var prevCatalogue = CatalogurCtrl.$selectedCatalogue.prev();
                     CatalogurCtrl.$selectedCatalogue.remove();
@@ -343,7 +343,7 @@
 
                 } else if (status === "error") {
                     // report error
-                    console.log(error);
+                    //console.log(error);
                 }
             })
         };
@@ -426,7 +426,7 @@
                 title: this.$editorTitle.val(),
                 content: this.contentToHtml(content)
             };
-            console.log(message);
+            //console.log(message);
             modalCode = MODALCODE.previewEssay;
             ModalCtrl.show(message);
         };
@@ -445,21 +445,21 @@
         };
 
         EssayCtrl.saveEssay = function(){
-            console.log('Save essay start...');
+            //console.log('Save essay start...');
             var newEssay = {};
             newEssay.title = EssayCtrl.$editorTitle.val();
             newEssay.content = util.htmlFilter(EssayCtrl.$editorContent.html());
             newEssay.alive = true;
 
-            //console.log(newEssay.content);
-            //console.log(markdown.toHTML(newEssay.content));
+            ////console.log(newEssay.content);
+            ////console.log(markdown.toHTML(newEssay.content));
 
             if (newEssay.title && newEssay.content) {
                 EssayModel.add(NotebookModel.getId(), newEssay, saveEssayCallback);
                 function saveEssayCallback(error, essay) {
-                    if (error) return console.log('Save Essay Faild some error occurred');
+                    if (error) return //console.log('Save Essay Faild some error occurred');
 
-                    console.log('Save essay finish...');
+                    //console.log('Save essay finish...');
                     NotebookModel.updateNumber(1);
                     NotebooksCtrl.updateNotebook();
 
@@ -471,12 +471,19 @@
                     EssayView.render(EssayCtrl.$essayArea, EssayModel.essay);
                     global.state = 'read';
                 }
+            }else{
+              message = {
+                title: "Notice",
+                content: "需要有标题和内容！"
+              };
+              modalCode = "notice";
+              ModalCtrl.show(message);
             }
         }
 
         EssayCtrl.removeEssay = function clickRemoveEssay() {
 
-            console.log('Remove essay starting...');
+            //console.log('Remove essay starting...');
             CatalogurCtrl.removeCatalogue()
         };
 
@@ -521,6 +528,8 @@
                 case MODALCODE.previewEssay:
                     this.$modal.addClass('modal-preview');
                     break;
+                default :
+                  break;
             }
             this.$title.html(this.message.title);
             this.$content.html(this.message.content);
