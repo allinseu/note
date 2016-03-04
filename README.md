@@ -6,6 +6,6 @@
 
 打开index.html即可。
 
-LICENSE
+## LICENSE
 
 MIT License
